@@ -1,0 +1,24 @@
+img_w: 640
+img_h: 480
+img_topic: "/camera/color/image_raw"
+imu_topic: "/camera/imu"
+
+distortion_parameters:
+   k1: 0.0
+   k2: 0.0
+   p1: 0.0
+   p2: 0.0
+
+projection_parameters:
+   fx: 6.141507568359375e+02
+   fy: 6.142086791992188e+02
+   cx: 3.224935607910156e+02
+   cy: 2.4351528930664062e+02
+
+# transformation from imu to camera (calibrate with kalibr)
+imu_cam_extrinsics: [ 0.9999005,  0.00479003,  0.01326819,  0.01571363,
+                    -0.00506716,  0.99976806,  0.02093217, -0.00533074,
+                    -0.01316484, -0.02099732,  0.99969285, -0.01824329,
+                            0.0,         0.0,         0.0,         1.0]
+# time difference between imu and camera (t_imu = t_cam + imu_cam_time_offset)
+imu_cam_time_offset: 0.008800612361756872

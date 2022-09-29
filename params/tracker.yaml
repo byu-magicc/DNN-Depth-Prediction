@@ -1,0 +1,27 @@
+pub_draw_feats: true
+
+part_w: 4
+part_h: 3
+
+gf2t:
+  max_corners: 15 # maximum number of features per image partition
+  quality_level: 0.01
+  min_distance: 30
+  subpix_win_size: 10
+  subpix_max_iter: 10
+  subpix_eps: 0.03
+
+klt:
+  win_size: 21
+  max_level: 3
+  max_iter: 30
+  eps: 0.03
+
+keyframe:
+  use_keyframes: true # publish features at keyframes (true) or publish features at every image (false)
+  use_rotation_compensated_parallax: false
+  window_length: 20 #10
+  keyframe_parallax_threshold: 10.0
+  minimum_features: 50
+  minimum_keyframes_for_inclusion: 5 # number of keyframes a feature must be seen in in order to be published (at least 2)
+  pub_at_camera_rate: false

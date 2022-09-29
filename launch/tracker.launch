@@ -1,0 +1,7 @@
+<launch>
+
+    <rosparam command="load" file="$(find spline_vio)/params/tracker.yaml"/>
+    <rosparam command="load" file="$(find spline_vio)/params/realsense_d435i.yaml"/>
+    <node name="feature_tracker" pkg="spline_vio" type="feature_tracker" output="screen"/>
+
+</launch>
