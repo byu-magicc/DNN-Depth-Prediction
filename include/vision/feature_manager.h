@@ -17,7 +17,7 @@ struct Feature
   {}
 
   Feature(int id, const cv::Scalar col) : 
-    feat_id(id), draw_color(col), visible(true)
+    feat_id(id), draw_color(col), visible(true), active(false)
   {}
 
   ~Feature()

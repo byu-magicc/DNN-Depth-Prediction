@@ -146,7 +146,6 @@ void FeatureTrackerNode::image_callback(const sensor_msgs::ImageConstPtr img_msg
   double img_time = img_msg->header.stamp.toSec() - start_time_;
   bool new_keyframe;
   std::shared_ptr<std::map<int, Feature>> feats = feature_tracker_->process(cv_ptr->image, img_msg->header.seq, img_time, new_keyframe);
-  if(new_keyframe) std::cout << "new keyframe\n";
 
   if(!use_keyframes_) pub_all_features(feats, img_msg->header);
   else
