@@ -12,7 +12,7 @@ FeatureTrackerNode::FeatureTrackerNode() :
 
   image_sub_ = nh_.subscribe(img_topic, 1, &FeatureTrackerNode::image_callback, this);
 
-  feat_pub_ = nh_.advertise<spline_vio::TrackedFeats>("tracked_features", 10);
+  feat_pub_ = nh_.advertise<ttc_object_avoidance::TrackedFeats>("tracked_features", 10);
 
   nh_private_.param<bool>("/pub_draw_feats", pub_draw_feats_, true);
   if(pub_draw_feats_)
@@ -185,9 +185,9 @@ void FeatureTrackerNode::imu_callback(const sensor_msgs::ImuConstPtr msg)
 
 void FeatureTrackerNode::pub_all_features(std::shared_ptr<std::map<int, Feature>> feats, const std_msgs::Header header)
 {
-  spline_vio::TrackedFeats feats_msg;
+  ttc_object_avoidance::TrackedFeats feats_msg;
   Feature feat;
-  spline_vio::FeatData feat_data;
+  ttc_object_avoidance::FeatData feat_data;
   geometry_msgs::Point pt, norm_pt;
 
   for(auto const& map_feat : *feats)
@@ -225,9 +225,9 @@ void FeatureTrackerNode::pub_all_features(std::shared_ptr<std::map<int, Feature>
 
 void FeatureTrackerNode::pub_keyframe_features(std::shared_ptr<std::map<int, Feature>> feats, const std_msgs::Header header, bool new_keyframe)
 {
-  spline_vio::TrackedFeats keyframe_feats_msg;
+  ttc_object_avoidance::TrackedFeats keyframe_feats_msg;
   Feature feat;
-  spline_vio::FeatData feat_data;
+  ttc_object_avoidance::FeatData feat_data;
   geometry_msgs::Point pt, norm_pt;
 
   for(auto &map_feat : *feats)

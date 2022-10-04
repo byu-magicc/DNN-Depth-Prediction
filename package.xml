@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <package>
-  <name>spline_vio</name>
+  <name>ttc_object_avoidance</name>
   <version>0.0.0</version>
-  <description>Spline Visual-inertial Odometry ROS package</description>
+  <description>TTC Object Avoidance</description>
 
-  <maintainer email="jjohns99@byu.edu">Jake Johnson</maintainer>
+  <maintainer email="bmcc1745@gmail.com">James Adams</maintainer>
 
-  <author email="jjohns99@byu.edu">Jake Johnson</author>
+  <author email="bmcc1745@gmail.com">James Adams</author>
 
   <license>MIT</license>
 
