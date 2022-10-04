@@ -13,8 +13,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
-#include "spline_vio/FeatData.h"
-#include "spline_vio/TrackedFeats.h"
+#include "ttc_object_avoidance/FeatData.h"
+#include "ttc_object_avoidance/TrackedFeats.h"
 #include <Eigen/Dense>
 
 #include "lie_groups/so3.hpp"

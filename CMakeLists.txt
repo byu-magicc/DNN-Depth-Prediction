@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(spline_vio)
+project(ttc_object_avoidance)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE "Release")
