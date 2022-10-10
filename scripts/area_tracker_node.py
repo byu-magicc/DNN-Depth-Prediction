@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
+
 import cv2
 import rospy
 import numpy as np
-from ttc_object_avoidance.msg import FeatData
 from ttc_object_avoidance.msg import TrackedFeats
 from geometry_msgs.msg import Point
 from scipy.spatial import Delaunay
@@ -33,7 +34,7 @@ class AreaTrackerNode:
             currentID = feat.feat_id
             self.currentFeatureIDs[i] = currentID
             self.mapIdsToIndecies[currentID] = i
-            featurePos = feat.pts[-1]
+            featurePos = feat.norm_pts[-1]
             self.currentFeaturePositions[i] = np.array([featurePos.x, featurePos.y])
             self.trackedIDs.add(currentID)
 
