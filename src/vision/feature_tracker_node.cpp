@@ -193,7 +193,7 @@ void FeatureTrackerNode::pub_all_features(std::shared_ptr<std::map<int, Feature>
   for(auto const& map_feat : *feats)
   {
     feat = map_feat.second;
-    if(!feat.active) continue;
+    if(!feat.active || !feat.visible) continue;
     
     feat_data.pts.clear();
     feat_data.norm_pts.clear();
@@ -233,7 +233,7 @@ void FeatureTrackerNode::pub_keyframe_features(std::shared_ptr<std::map<int, Fea
   for(auto &map_feat : *feats)
   {
     feat = map_feat.second;
-    if(!feat.active) continue;
+    if(!feat.active || !feat.visible) continue;
     
     feat_data.pts.clear();
     feat_data.norm_pts.clear();
