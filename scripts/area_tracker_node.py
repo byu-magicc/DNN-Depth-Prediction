@@ -39,7 +39,8 @@ class AreaTrackerNode:
         rospy.spin()
 
     def features_callback(self, feats):
-        if len(feats.feats) == 0:
+        if len(feats.feats) < 4:
+            rospy.loginfo("Insufficient number of features received")
             return
         self.trackedIDs.clear()
         i = -1

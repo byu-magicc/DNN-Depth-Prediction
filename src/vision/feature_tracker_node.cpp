@@ -200,20 +200,18 @@ void FeatureTrackerNode::pub_all_features(std::shared_ptr<std::map<int, Feature>
     feat_data.img_ids.clear();
 
     feat_data.feat_id = feat.feat_id;
-    for(int i = 0; i < feat.pts.size(); ++i)
-    {
-      pt.x = feat.pts[i].x;
-      pt.y = feat.pts[i].y;
-      pt.z = 1.0;
+    int i = feat.pts.size() - 1;
+    pt.x = feat.pts[i].x;
+    pt.y = feat.pts[i].y;
+    pt.z = 1.0;
 
-      norm_pt.x = feat.norm_pts[i].x;
-      norm_pt.y = feat.norm_pts[i].y;
-      norm_pt.z = 1.0;
+    norm_pt.x = feat.norm_pts[i].x;
+    norm_pt.y = feat.norm_pts[i].y;
+    norm_pt.z = 1.0;
 
-      feat_data.pts.push_back(pt);
-      feat_data.norm_pts.push_back(norm_pt);
-      feat_data.img_ids.push_back(feat.image_ids[i]);
-    }
+    feat_data.pts.push_back(pt);
+    feat_data.norm_pts.push_back(norm_pt);
+    feat_data.img_ids.push_back(feat.image_ids[i]);
 
     feats_msg.feats.push_back(feat_data);
   }
@@ -240,20 +238,18 @@ void FeatureTrackerNode::pub_keyframe_features(std::shared_ptr<std::map<int, Fea
     feat_data.img_ids.clear();
 
     feat_data.feat_id = feat.feat_id;
-    for(int i = 0; i < feat.keyframe_pts.size(); i++)
-    {
-      pt.x = feat.keyframe_pts[i].second.first.x;
-      pt.y = feat.keyframe_pts[i].second.first.y;
-      pt.z = 1.0;
+    int i = feat.keyframe_pts.size() - 1;
+    pt.x = feat.keyframe_pts[i].second.first.x;
+    pt.y = feat.keyframe_pts[i].second.first.y;
+    pt.z = 1.0;
 
-      norm_pt.x = feat.keyframe_pts[i].second.second.x;
-      norm_pt.y = feat.keyframe_pts[i].second.second.y;
-      norm_pt.z = 1.0;
+    norm_pt.x = feat.keyframe_pts[i].second.second.x;
+    norm_pt.y = feat.keyframe_pts[i].second.second.y;
+    norm_pt.z = 1.0;
 
-      feat_data.pts.push_back(pt);
-      feat_data.norm_pts.push_back(norm_pt);
-      feat_data.img_ids.push_back(feat.keyframe_pts[i].first);
-    }
+    feat_data.pts.push_back(pt);
+    feat_data.norm_pts.push_back(norm_pt);
+    feat_data.img_ids.push_back(feat.keyframe_pts[i].first);
 
     // add current image features if publishing at camera frame rate
     if(!new_keyframe)
