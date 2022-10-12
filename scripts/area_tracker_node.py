@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import queue
+from tokenize import Double
 import cv2
 import rospy
 import numpy as np
 from ttc_object_avoidance.msg import TrackedFeats
-from geometry_msgs.msg import Point
+from sensor_msgs.msg import Image
 from scipy.spatial import Delaunay
+from cv_bridge import CvBridge, CvBridgeError
 
 class AreaTrackerNode:
     triangles_found = False
@@ -14,19 +17,30 @@ class AreaTrackerNode:
     delaunay_simplices_ids = None
     mapIdsToIndecies = None
 
-    currentFeaturePositions = np.zeros((1000, 2), dtype=int)
+    currentFeaturePositions = np.zeros((1000, 2), dtype=float)
     currentFeatureIDs = np.zeros((1000), dtype=int)
     currentNumPoints = 0
+
+    # printedAlready = False
+    draw_areas = False
 
     def __init__(self) -> None:
         self.trackedIDs = set()
         self.mapIdsToIndecies = dict()
         rospy.Subscriber("tracked_features", TrackedFeats, self.features_callback, queue_size=1)
+        ns = rospy.get_namespace()
+        self.draw_areas = rospy.get_param(ns + 'pub_draw_feats')
+
+        if self.draw_areas:
+            rospy.Subscriber("features_image", Image, self.image_callback,queue_size=1)
+            self.image_pub = rospy.Publisher("area_image", Image, queue_size=1)
 
     def run(self):
         rospy.spin()
 
     def features_callback(self, feats):
+        if len(feats.feats) == 0:
+            return
         self.trackedIDs.clear()
         i = -1
         for feat in feats.feats:
@@ -34,9 +48,13 @@ class AreaTrackerNode:
             currentID = feat.feat_id
             self.currentFeatureIDs[i] = currentID
             self.mapIdsToIndecies[currentID] = i
-            featurePos = feat.norm_pts[-1]
-            self.currentFeaturePositions[i] = np.array([featurePos.x, featurePos.y])
+            featurePos = feat.pts[-1]
+            self.currentFeaturePositions[i, 0] = featurePos.x
+            self.currentFeaturePositions[i, 1] = featurePos.y
             self.trackedIDs.add(currentID)
+
+        self.currentNumPoints = i + 1
+        lastIndex = i
 
         if self.triangles_found:
             newSimplicesIndecies = np.zeros_like(self.delaunay_simplices_ids, dtype=int)
@@ -55,13 +73,22 @@ class AreaTrackerNode:
             self.delaunay_simplices = newSimplicesIndecies[:i + 1]
             self.delaunay_simplices_ids = newSimplicesIDs[:i + 1]
 
-        #if not self.delaunay_calculated or self.delaunay_simplices.shape[0] < 200:
-        tri = Delaunay(self.currentFeaturePositions)
+        tri = Delaunay(self.currentFeaturePositions[:lastIndex])
         self.delaunay_simplices = tri.simplices
         self.delaunay_simplices_ids = self.currentFeatureIDs[tri.simplices]
         self.triangles_found = True
-        #self.previous_areas = self.calculateAreas(self.delaunay_simplices_ids, self.delaunay_simplices, self.currentFeaturePositions)
 
+    def image_callback(self, img_msg):
+        bridge = CvBridge()
+        try:
+            cv_image = bridge.imgmsg_to_cv2(img_msg, desired_encoding="passthrough")
+        except CvBridgeError as e:
+            rospy.logerr("CvBridge Error: {0}".format(e))
+        overlay = cv_image.copy()
+        cv2.drawContours(overlay, self.currentFeaturePositions[self.delaunay_simplices].astype(int), -1, (0, 128, 0), -1)
+        alpha = 0.3
+        img = cv2.addWeighted(overlay, alpha, cv_image, 1-alpha, 0)
+        self.image_pub.publish(bridge.cv2_to_imgmsg(img,encoding="bgr8"))
 
 if __name__=='__main__':
     rospy.init_node('area_tracker', anonymous=True)

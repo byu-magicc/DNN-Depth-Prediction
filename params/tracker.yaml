@@ -19,7 +19,7 @@ klt:
 
 keyframe:
   use_keyframes: true # publish features at keyframes (true) or publish features at every image (false)
-  use_rotation_compensated_parallax: true
+  use_rotation_compensated_parallax: false
   window_length: 20 #10
   keyframe_parallax_threshold: 10.0
   minimum_features: 50
