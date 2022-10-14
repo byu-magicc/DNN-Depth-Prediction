@@ -21,12 +21,20 @@ class AreaTrackerNode:
     currentFeatureIDs = np.zeros((1000), dtype=int)
     currentNumPoints = 0
 
+    currentAreas = None
+    previousTTC = None
+
+    previousStamp = 0
+
+    idPadding = 10
+
     # printedAlready = False
     draw_areas = False
 
     def __init__(self) -> None:
         self.trackedIDs = set()
         self.mapIdsToIndecies = dict()
+        self.previousTTC = dict()
         rospy.Subscriber("tracked_features", TrackedFeats, self.features_callback, queue_size=1)
         ns = rospy.get_namespace()
         self.draw_areas = rospy.get_param(ns + 'pub_draw_feats')
@@ -43,6 +51,7 @@ class AreaTrackerNode:
             rospy.loginfo("Insufficient number of features received")
             return
         self.trackedIDs.clear()
+        currentStamp = feats.header.stamp
         i = -1
         for feat in feats.feats:
             i += 1
@@ -71,13 +80,25 @@ class AreaTrackerNode:
                     newSimplicesIDs[i,j] = tri[j]
                 if valid_simplex:
                     i += 1
-            self.delaunay_simplices = newSimplicesIndecies[:i + 1]
-            self.delaunay_simplices_ids = newSimplicesIDs[:i + 1]
+            self.delaunay_simplices = newSimplicesIndecies[:i]
+            self.delaunay_simplices_ids = newSimplicesIDs[:i]
+            
+            #
+            self.previousTTC.clear()
+            newAreas = self.calculateAreas(self.delaunay_simplices_ids, self.delaunay_simplices, self.currentFeaturePositions)
+            # rospy.loginfo("New Keys:" + str(newAreas.keys()))
+            for id_str, newArea in newAreas.items():
+                oldArea = self.currentAreas[id_str]
+                ttc = (currentStamp - self.previousStamp) * newArea/(newArea - oldArea)
+                self.previousTTC[id_str] = ttc
 
+        self.previousStamp = currentStamp
         tri = Delaunay(self.currentFeaturePositions[:lastIndex])
         self.delaunay_simplices = tri.simplices
         self.delaunay_simplices_ids = self.currentFeatureIDs[tri.simplices]
         self.triangles_found = True
+        self.currentAreas = self.calculateAreas(self.delaunay_simplices_ids, self.delaunay_simplices, self.currentFeaturePositions)
+        # rospy.loginfo("Current Keys:" + str(self.currentAreas.keys()))
 
     def image_callback(self, img_msg):
         bridge = CvBridge()
@@ -90,6 +111,20 @@ class AreaTrackerNode:
         alpha = 0.3
         img = cv2.addWeighted(overlay, alpha, cv_image, 1-alpha, 0)
         self.image_pub.publish(bridge.cv2_to_imgmsg(img,encoding="bgr8"))
+
+    def calculateAreas(self, simplicesIDs, simplices, points):
+        areas = dict()
+
+        trianglePoints = points[simplices]
+        areasArray = 1./2. * np.abs(trianglePoints[:, 0, 0] * (trianglePoints[:, 1, 1] - trianglePoints[:, 2, 1]) 
+                               + trianglePoints[:, 1, 0] * (trianglePoints[:, 2, 1] - trianglePoints[:, 0, 1])
+                               + trianglePoints[:, 2, 0] * (trianglePoints[:, 0, 1] - trianglePoints[:, 1, 1]))
+        for i in range(areasArray.shape[0]):
+            pointIDs = np.sort(simplicesIDs[i])
+            triangleID = str(pointIDs[0]).zfill(self.idPadding) + str(pointIDs[1]).zfill(self.idPadding) + str(pointIDs[2]).zfill(self.idPadding)
+            areas[triangleID] = areasArray[i]
+        
+        return areas
 
 if __name__=='__main__':
     rospy.init_node('area_tracker', anonymous=True)
