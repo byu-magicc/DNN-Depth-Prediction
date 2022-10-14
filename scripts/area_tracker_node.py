@@ -107,7 +107,8 @@ class AreaTrackerNode:
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
         overlay = cv_image.copy()
-        for id_str, ttc in self.previousTTC.items():
+        previousTTCItems = self.previousTTC.items()
+        for id_str, ttc in previousTTCItems:
             index1 = self.mapIdsToIndecies[int(id_str[0:self.idPadding])]
             index2 = self.mapIdsToIndecies[int(id_str[self.idPadding:self.idPadding*2])]
             index3 = self.mapIdsToIndecies[int(id_str[self.idPadding*2:])]
