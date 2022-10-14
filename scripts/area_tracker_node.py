@@ -89,7 +89,7 @@ class AreaTrackerNode:
             # rospy.loginfo("New Keys:" + str(newAreas.keys()))
             for id_str, newArea in newAreas.items():
                 oldArea = self.currentAreas[id_str]
-                ttc = (currentStamp - self.previousStamp) * newArea/(newArea - oldArea)
+                ttc = (currentStamp - self.previousStamp).nsecs*1e-9 * newArea/(newArea - oldArea)
                 self.previousTTC[id_str] = ttc
 
         self.previousStamp = currentStamp
@@ -107,8 +107,19 @@ class AreaTrackerNode:
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
         overlay = cv_image.copy()
-        cv2.drawContours(overlay, self.currentFeaturePositions[self.delaunay_simplices].astype(int), -1, (0, 128, 0), -1)
-        alpha = 0.3
+        for id_str, ttc in self.previousTTC.items():
+            index1 = self.mapIdsToIndecies[int(id_str[0:self.idPadding])]
+            index2 = self.mapIdsToIndecies[int(id_str[self.idPadding:self.idPadding*2])]
+            index3 = self.mapIdsToIndecies[int(id_str[self.idPadding*2:])]
+            simplex = np.array([index1, index2, index3])
+            color = (0, 128, 0)
+            if ttc < 3:
+                color = (0, 0, 128)
+            elif ttc < 10:
+                color = (0, 128, 128)
+            # rospy.loginfo("Simplex: " + str(simplex) + ", positions: " + str(self.currentFeaturePositions[simplex].astype(int)))
+            cv2.drawContours(overlay, [self.currentFeaturePositions[simplex].astype(int)], -1, color, -1)
+        alpha = 0.5
         img = cv2.addWeighted(overlay, alpha, cv_image, 1-alpha, 0)
         self.image_pub.publish(bridge.cv2_to_imgmsg(img,encoding="bgr8"))
 
