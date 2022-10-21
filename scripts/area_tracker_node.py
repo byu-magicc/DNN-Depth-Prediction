@@ -114,7 +114,9 @@ class AreaTrackerNode:
             index3 = self.mapIdsToIndecies[int(id_str[self.idPadding*2:])]
             simplex = np.array([index1, index2, index3])
             color = (0, 128, 0)
-            if ttc < 3:
+            if ttc < 0:
+                pass
+            elif ttc < 3:
                 color = (0, 0, 128)
             elif ttc < 10:
                 color = (0, 128, 128)
