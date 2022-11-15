@@ -2,7 +2,7 @@ import cv2
 import rospy
 import numpy as np
 from collections import deque
-from ttc_object_avoidance.msg import TrackedFeats, TrackedFeatsWDis
+from ttc_object_avoidance.msg import TrackedFeats, TrackedFeatsWDis, FeatAndDisplacement
 from sensor_msgs.msg import Image
 
 class DisplacementTrackerNode:
@@ -48,6 +48,7 @@ class DisplacementTrackerNode:
 
         # run through the features and calculate displacements. Only include a feature in the result if it has a displacement
         features = []
+        
 
         for featID in self.trackedFeaturesPath:
             path = self.trackedFeaturesPath[featID]
@@ -56,4 +57,19 @@ class DisplacementTrackerNode:
             if len(path) < 2:
                 continue
 
-            disx = path[-1] - path[-2]
+            disx = path[-1].x - path[-2].x
+            disy = path[-1].y - path[-2].y
+
+            feat = FeatAndDisplacement()
+            feat.feat_id=featID
+            feat.pt = path[-1]
+            feat.displacement.x = disx
+            feat.displacement.y = disy
+            feat.displacement.z = 0
+            features.append(feat)
+        
+        featsMsg = TrackedFeatsWDis()
+        featsMsg.header = feats.header
+        featsMsg.new_keyframe = feats.new_keyframe
+        featsMsg.feats = features
+        self.feature_disp_publisher.publish(featsMsg)
