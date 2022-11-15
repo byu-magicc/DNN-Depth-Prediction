@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cv2
 import rospy
 import numpy as np
@@ -73,3 +75,8 @@ class DisplacementTrackerNode:
         featsMsg.new_keyframe = feats.new_keyframe
         featsMsg.feats = features
         self.feature_disp_publisher.publish(featsMsg)
+
+if __name__=="__main__":
+    rospy.init_node("displacement_tracker")
+    ros_node = DisplacementTrackerNode()
+    ros_node.run()

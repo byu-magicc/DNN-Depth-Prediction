@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cv2
 import csv
 import rospy
@@ -12,11 +14,13 @@ class AirSimRecordingReaderNode:
     line_num = 0
     featfilename = ""
 
+    dirToRead = "~/Documents/AirSim/supercomputer_recording/"
+
     def __init__(self) -> None:
         self.image_pub = rospy.Publisher("camera_image", Image, queue_size=1)
         rospy.Subscriber("tracked_features", TrackedFeatsWDis, self.feature_callback, queue_size=1)
         try:
-            recording_file = open("airsim_rec.txt","r")
+            recording_file = open(self.dirToRead + "airsim_rec.txt","r")
             data_reader = csv.DictReader(recording_file, delimiter="\t")
             for line in data_reader:
                 self.record_lines.append(line)
@@ -44,7 +48,7 @@ class AirSimRecordingReaderNode:
         self.featfilename = color_filename.split(".")[0]
 
         # read the frame from the file
-        img = cv2.imread("images/" + color_filename, cv2.IMREAD_COLOR)
+        img = cv2.imread(self.dirToRead + "images/" + color_filename, cv2.IMREAD_COLOR)
 
         # resize it to the proper scale
         resized_img = cv2.resize(img, dim)
@@ -60,7 +64,7 @@ class AirSimRecordingReaderNode:
         if len(feats.feats) < 4:
             rospy.loginfo("Insufficient number of features recieved to get depth data")
             return
-        with open("/feat_data/" + self.featfilename + ".csv", "w", newline="") as featDataFile:
+        with open(self.dirToRead + "feat_data/" + self.featfilename + ".csv", "w", newline="") as featDataFile:
             dataWriter = csv.writer(featDataFile)
             header = ["pos_x", "pos_y", "vel_x", "vel_y"]
             dataWriter.writerow(header)

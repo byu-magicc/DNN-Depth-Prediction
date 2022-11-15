@@ -43,6 +43,8 @@ add_message_files(
   FILES
   FeatData.msg
   TrackedFeats.msg
+  FeatAndDisplacement.msg
+  TrackedFeatsWDis.msg
 )
 
 generate_messages(
