@@ -14,11 +14,11 @@ class AirSimRecordingReaderNode:
     line_num = 0
     featfilename = ""
 
-    dirToRead = "~/Documents/AirSim/supercomputer_recording/"
+    dirToRead = "/home/james/Documents/AirSim/supercomputer_recording/"
 
     def __init__(self) -> None:
         self.image_pub = rospy.Publisher("camera_image", Image, queue_size=1)
-        rospy.Subscriber("tracked_features", TrackedFeatsWDis, self.feature_callback, queue_size=1)
+        rospy.Subscriber("tracked_disp", TrackedFeatsWDis, self.feature_callback, queue_size=1)
         try:
             recording_file = open(self.dirToRead + "airsim_rec.txt","r")
             data_reader = csv.DictReader(recording_file, delimiter="\t")
@@ -27,7 +27,7 @@ class AirSimRecordingReaderNode:
             recording_file.close()
 
         except:
-            print("Could not open recording file. Make the script is run inside an AirSim recording folder")
+            print("Could not open recording file. Make sure the path is correct")
             #TODO: Kill the nodes
 
     # Function called to publish the next frame of the recording
@@ -63,12 +63,14 @@ class AirSimRecordingReaderNode:
     def feature_callback(self, feats) -> None:
         if len(feats.feats) < 4:
             rospy.loginfo("Insufficient number of features recieved to get depth data")
+            self.line_num += 1
             return
         with open(self.dirToRead + "feat_data/" + self.featfilename + ".csv", "w", newline="") as featDataFile:
             dataWriter = csv.writer(featDataFile)
             header = ["pos_x", "pos_y", "vel_x", "vel_y"]
             dataWriter.writerow(header)
-            del_t = self.record_lines[self.line_num]["TimeStamp"] - self.record_lines[self.line_num-1]["TimeStamp"]
+            del_t = int(self.record_lines[self.line_num]["TimeStamp"]) - int(self.record_lines[self.line_num-1]["TimeStamp"])
+            del_t /= 1000
 
             for feat in feats.feats:
                 row = [feat.pt.x, feat.pt.y, feat.displacement.x/del_t, feat.displacement.y/del_t]
@@ -78,7 +80,7 @@ class AirSimRecordingReaderNode:
 if __name__ == "__main__":
     rospy.init_node("airsim_recording_reader_node", anonymous=True)
     ros_node = AirSimRecordingReaderNode()
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(1)
 
     while not rospy.is_shutdown():
         ros_node.publish_data()
