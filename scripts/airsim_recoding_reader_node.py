@@ -4,6 +4,7 @@ import rospy
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from ttc_object_avoidance.msg import TrackedFeatsWDis
 
 class AirSimRecordingReaderNode:
     image_pub = None
@@ -12,6 +13,7 @@ class AirSimRecordingReaderNode:
 
     def __init__(self) -> None:
         self.image_pub = rospy.Publisher("camera_image", Image, queue_size=1)
+        rospy.Subscriber("tracked_features", TrackedFeatsWDis, self.feature_callback, queue_size=1)
         try:
             recording_file = open("airsim_rec.txt","r")
             data_reader = csv.DictReader(recording_file, delimiter="\t")
