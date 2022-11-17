@@ -118,7 +118,7 @@ void FeatureTrackerNode::setup_keyframes()
   nh_private_.param<bool>("/keyframe/pub_at_camera_rate", pub_at_camera_rate_, false); // if true, features from the most recent camera
                                                                                        // frame will be appended to the keyframe features
                                                                                        // to allow camera frame-rate estimation
-  nh_private_.param<bool>("/use_keyframes", use_keyframes_, true); // if false, camera features from every image in the sliding window will be
+  nh_private_.param<bool>("/keyframe/use_keyframes", use_keyframes_, true); // if false, camera features from every image in the sliding window will be
                                                                    // published, not just keyframes
 
   feature_tracker_->setup_keyframes(window_length, parallax_threshold, minimum_features, minimum_keyframes_for_inclusion);

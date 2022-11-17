@@ -57,7 +57,7 @@ class AirSimRecordingReaderNode:
         self.image_pub.publish(bridge.cv2_to_imgmsg(resized_img, encoding="bgr8"))
 
 
-        #self.line_num += 1
+        self.prev_num = self.line_num
     
     # Function to summarize the features and their velocities and add them to the file
     def feature_callback(self, feats) -> None:
