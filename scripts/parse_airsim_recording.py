@@ -81,13 +81,13 @@ try:
                     closest_feats = []
                     for feat in feats:
                         if len(closest_feats) < 4:
-                            dist = np.sqrt((i - feat["pos_x"])**2 + (j -feat["pos_y"])**2)
+                            dist = np.sqrt((i - float(feat["pos_x"]))**2 + (j -float(feat["pos_y"]))**2)
                             feat["dist"] = dist
                             closest_feats.append(feat)
                             continue
-                        dist = np.sqrt((i - feat["pos_x"])**2 + feat["pos_y"]**2)
+                        dist = np.sqrt((i - float(feat["pos_x"]))**2 + (j - float(feat["pos_y"]))**2)
                         i = 4
-                        while dist < closest_feats[i-1]["dist"]:
+                        while dist < closest_feats[i-1]["dist"] and i > 0:
                             i -= 1
                         if i != 4:
                             feat["dist"] = dist
@@ -108,5 +108,5 @@ try:
             # no feature velocity data for this frame, skip it
             continue
 
-except:
-    print("Something went wrong")
+except FileNotFoundError:
+    print("Files not found")
