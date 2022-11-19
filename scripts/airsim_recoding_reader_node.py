@@ -80,7 +80,7 @@ class AirSimRecordingReaderNode:
 if __name__ == "__main__":
     rospy.init_node("airsim_recording_reader_node", anonymous=True)
     ros_node = AirSimRecordingReaderNode()
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(5)
 
     while not rospy.is_shutdown():
         ros_node.publish_data()
