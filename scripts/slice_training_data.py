@@ -2,12 +2,12 @@ import csv
 import random
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
-file_to_write = directory + "nn_data_part1.csv"
+file_to_write = directory + "nn_data_part2.csv"
 
 with open(directory+"nn_data.csv", "r") as big_data_file:
     writer = csv.writer(open(file_to_write, "w", newline=""))
     reader = csv.DictReader(big_data_file)
-    stop = 100000
+    stop = 1000000
 
     i = 0
     lines_written = 0
