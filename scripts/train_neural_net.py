@@ -23,6 +23,11 @@ raw_dataset = pd.read_csv(data_filename, header=0, sep=",")
 
 dataset = raw_dataset.copy()
 
+def cap_to_hundred(input):
+    return np.clip(input, 0, 100)
+
+dataset["depth"] = dataset["depth"].apply(cap_to_hundred)
+
 train_dataset = dataset.sample(frac=0.8, random_state=0)
 test_dataset = dataset.drop(train_dataset.index)
 
@@ -61,7 +66,7 @@ history = dnn_model.fit(
 def plot_loss(history):
   plt.plot(history.history['loss'], label='loss')
   plt.plot(history.history['val_loss'], label='val_loss')
-  plt.ylim([0, 10])
+#   plt.ylim([0, 10])
   plt.xlabel('Epoch')
   plt.ylabel('Error')
   plt.legend()
