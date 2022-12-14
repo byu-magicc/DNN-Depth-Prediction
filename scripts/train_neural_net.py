@@ -79,8 +79,8 @@ a = plt.axes(aspect='equal')
 plt.scatter(test_labels, test_predictions)
 plt.xlabel('True Values [m]')
 plt.ylabel('Predictions [m]')
-# lims = [0, 50]
-# plt.xlim(lims)
-# # plt.ylim(lims)
-# _ = plt.plot(lims, lims)
+lims = [0, 100]
+plt.xlim(lims)
+plt.ylim(lims)
+_ = plt.plot(lims, lims, "k")
 # %%
