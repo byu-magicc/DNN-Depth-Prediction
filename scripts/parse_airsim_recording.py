@@ -30,13 +30,13 @@ def read_pfm(filename):
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
-header = ["depth","PXx", "PXy","Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
+header = ["depth","PXx", "PXy", "Q_W", "Q_X", "Q_Y", "Q_Z", "Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
 
 record_lines = []
 
 try:
     recording_file = open(directory + "airsim_rec.txt","r")
-    data_write_file = open(directory+"nn_data.csv", "w", newline="")
+    data_write_file = open(directory+"naive_nn_data.csv", "w", newline="")
     dataWriter = csv.writer(data_write_file)
     data_reader = csv.DictReader(recording_file, delimiter="\t")
     for line in data_reader:
@@ -59,7 +59,7 @@ try:
         featfilename = both_images.split(";")[0].split(".")[0] + ".csv"
 
         try:
-            feat_file = open(directory+"feat_data/" + featfilename)
+            feat_file = open(directory+"naive_feat_data/" + featfilename)
             feat_reader = csv.DictReader(feat_file)
             feats = []
             for feat in feat_reader:
@@ -109,7 +109,7 @@ try:
                             closest_feats.pop()
                             
                     depth = np.min(pixels[i:i+2, j:j+2])
-                    row = [depth, x, y, line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
+                    row = [depth, x, y, line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
                     for feat in closest_feats:
                         row.append(feat["pos_x"])
                         row.append(feat["pos_y"])

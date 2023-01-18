@@ -2,18 +2,19 @@ import csv
 import random
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
-file_to_write = directory + "nn_data_part2.csv"
+file_to_write = directory + "more_diverse_training_data.csv"
 
-with open(directory+"nn_data.csv", "r") as big_data_file:
+with open(directory+"soph_nn_data.csv", "r") as big_data_file:
     writer = csv.writer(open(file_to_write, "w", newline=""))
     reader = csv.DictReader(big_data_file)
-    stop = 1000000
+    stop = 100000
 
     i = 0
     lines_written = 0
     headers = reader.fieldnames
     writer.writerow(headers)
     rand = random.randint(0, 20)
+    lines = []
     for line in reader:
         i += 1
         if lines_written >= stop:
@@ -22,6 +23,9 @@ with open(directory+"nn_data.csv", "r") as big_data_file:
             line_to_write=[]
             for item in headers:
                 line_to_write.append(line[item])
-            writer.writerow(line_to_write)
+            lines.append(line_to_write)
             rand=random.randint(0, 20)
             lines_written += 1
+    random.shuffle(lines)
+    for line in lines:
+        writer.writerow(line)

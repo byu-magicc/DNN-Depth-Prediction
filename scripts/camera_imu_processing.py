@@ -19,13 +19,13 @@ class NaiveFeatureTracker:
     dirToRead = "/home/james/Documents/AirSim/supercomputer_recording/"
 
     # Show feature tracks?
-    SHOW_TRACKS = True
+    SHOW_TRACKS = False
 
     SHOW_IMAGE = True
 
     # Parameters for the goodFeaturesToTrack function
     feature_params = dict(maxCorners=0,
-                        qualityLevel=0.03,
+                        qualityLevel=0.2,
                         minDistance=10,
                         blockSize=3)
 
@@ -40,8 +40,25 @@ class NaiveFeatureTracker:
     mask = None
 
     # List of features to track
-    p0 = None
+    next_feats = None
     old_gray = None
+
+    displacements = None
+
+    f = 465.6
+    camera_intrinsics = np.array([[f, 0, 320],
+                                [0, f, 240],
+                                [0, 0, 1]])
+
+    cam_inv = np.linalg.inv(camera_intrinsics)
+
+    def calibrate_pixels(self, pos):
+        new_pos = np.reshape(pos, (2,-1))
+        uncalibrated = np.ones((3,new_pos.shape[1]))
+        uncalibrated[0:2] = pos
+
+        calibrated = self.cam_inv @ uncalibrated
+        return np.reshape(calibrated[0:2], pos.shape)
 
     def __init__(self) -> None:
         try:
@@ -61,8 +78,8 @@ class NaiveFeatureTracker:
         current_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
 
         # Check if we have any frames (or later if we have enough frames)
-        if self.p0 is None:
-            self.p0 = cv2.goodFeaturesToTrack(current_gray, mask=None, **self.feature_params)
+        if self.next_feats is None:
+            self.next_feats = cv2.goodFeaturesToTrack(current_gray, mask=None, **self.feature_params)
 
             # Keep track of old gray frame
             self.old_gray = current_gray.copy()
@@ -73,11 +90,30 @@ class NaiveFeatureTracker:
             # Skip the rest of the function, no need to do anything with it.
             return
 
-        p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_gray, current_gray, self.p0, None, **self.lk_params)
+        p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_gray, current_gray, self.next_feats, None, **self.lk_params)
 
         if p1 is not None:
             good_new = p1[st == 1]
-            good_old = self.p0[st == 1]
+            good_old = self.next_feats[st == 1]
+
+        self.next_feats = cv2.goodFeaturesToTrack(current_gray, mask=None, **self.feature_params)
+
+        # Keep track of old gray frame
+        self.old_gray = current_gray.copy()
+
+        if p1 is None:
+            self.displacements = None
+            self.p0 = None
+            return
+
+        calib_new = self.calibrate_pixels(good_new)
+        calib_old = self.calibrate_pixels(good_old)
+
+        self.displacements = calib_new - calib_old
+
+        # Only keep the good features for the next iteration
+        self.p0 = good_new.reshape(-1, 1, 2)
+        self.p0_calib = calib_new.reshape(-1, 1, 2)
 
         for i, (new, old) in enumerate(zip(good_new, good_old)):
             a, b = new.ravel()
@@ -87,17 +123,10 @@ class NaiveFeatureTracker:
         if self.SHOW_TRACKS:
             current_frame = cv2.add(current_frame, self.mask)
 
-
         # Display image
         if self.SHOW_IMAGE:
             cv2.imshow("camera", current_frame)
             cv2.waitKey(1)
-
-        # Keep track of old gray frame
-        self.old_gray = current_gray.copy()
-
-        # Only keep the good features for the next iteration
-        self.p0 = good_new.reshape(-1, 1, 2)
 
     # Function called to publish the next frame of the recording
     def publish_data(self):
@@ -125,29 +154,30 @@ class NaiveFeatureTracker:
         return resized_img
     
     # Function to summarize the features and their velocities and add them to the file
-    def process_features(self, feats) -> None:
-        if len(feats) < 4:
+    def process_features(self) -> None:
+        if self.displacements is None or len(self.p0) < 4:
             self.line_num += 1
             return
-        with open(self.dirToRead + "naive_feat_data/" + self.featfilename + ".csv", "w", newline="") as featDataFile:
+        with open(self.dirToRead + "naive_calib_feat_data/" + self.featfilename + ".csv", "w", newline="") as featDataFile:
             dataWriter = csv.writer(featDataFile)
             header = ["pos_x", "pos_y", "vel_x", "vel_y"]
             dataWriter.writerow(header)
             del_t = int(self.record_lines[self.line_num]["TimeStamp"]) - int(self.record_lines[self.line_num-1]["TimeStamp"])
             del_t /= 1000
 
-            for feat in feats.feats:
-                row = [feat.pt.x, feat.pt.y, feat.displacement.x/del_t, feat.displacement.y/del_t]
+            for i, feat in enumerate(self.p0_calib):
+                feat=np.reshape(feat, (2))
+                row = [feat[0], feat[1], self.displacements[i][0]/del_t, self.displacements[i][1]/del_t]
                 dataWriter.writerow(row)
         self.line_num += 1
 
     def process_images(self):
-        while self.line_num <= len(self.record_lines):
+        while self.line_num < len(self.record_lines):
             img = self.publish_data()
             self.track_features(img)
-            self.process_features(self.p0)
+            self.process_features()
 
 
 if __name__=="__main__":
     tracker = NaiveFeatureTracker()
-    tracker.process_images
+    tracker.process_images()

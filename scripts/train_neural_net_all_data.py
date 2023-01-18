@@ -1,10 +1,14 @@
 # %%
 
 import numpy as np
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import tensorflow as tf
 from keras import layers
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
@@ -15,7 +19,7 @@ directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
 # caching = feature_data_ds.cache().shuffle(1000)
 
-data_filename = directory + "nn_data_part1.csv"
+data_filename = directory + "soph_nn_data.csv"
 
 column_names = ["depth","PXx", "PXy","Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
 
@@ -44,6 +48,8 @@ def build_and_compile_model(norm):
   model = tf.keras.Sequential([
       norm,
       layers.Dense(64, activation='relu'),
+      layers.Dense(64, activation='tanh'),
+      layers.Dense(64, activation='selu'),
       layers.Dense(64, activation='relu'),
       layers.Dense(1)
   ])
@@ -54,6 +60,11 @@ def build_and_compile_model(norm):
 
 dnn_model = build_and_compile_model(normalizer)
 #%%
+checkpoint_path = "training_soph/cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
+cp_callback=tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                               save_weights_only=True,
+                                               verbose=1)
 
 history = dnn_model.fit(
     train_features,
@@ -61,6 +72,8 @@ history = dnn_model.fit(
     validation_split=0.2,
     epochs=200
 )
+
+tf.keras.models.save_model(dnn_model, "training_naive", overwrite=True, include_optimizer=True)
 
 #%%
 def plot_loss(history):
