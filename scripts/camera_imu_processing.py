@@ -55,7 +55,7 @@ class NaiveFeatureTracker:
     def calibrate_pixels(self, pos):
         new_pos = np.reshape(pos, (2,-1))
         uncalibrated = np.ones((3,new_pos.shape[1]))
-        uncalibrated[0:2] = pos
+        uncalibrated[0:2] = new_pos
 
         calibrated = self.cam_inv @ uncalibrated
         return np.reshape(calibrated[0:2], pos.shape)

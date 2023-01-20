@@ -19,7 +19,7 @@ directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
 # caching = feature_data_ds.cache().shuffle(1000)
 
-data_filename = directory + "naive_nn_data.csv"
+data_filename = directory + "naive_calib_nn_data.csv"
 
 column_names = ["depth","PXx", "PXy","Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
 
@@ -61,20 +61,22 @@ def build_and_compile_model(norm):
 
 dnn_model = build_and_compile_model(normalizer)
 #%%
-checkpoint_path = "training_naive/cp.ckpt"
+checkpoint_path = "training_naive_relu/cp_{epoch:04d}.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback=tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                save_weights_only=True,
+                                               save_freq='epoch',
                                                verbose=1)
 
 history = dnn_model.fit(
     train_features,
     train_labels,
     validation_split=0.2,
-    epochs=200
+    epochs=200,
+    callbacks=[cp_callback]
 )
 
-tf.keras.models.save_model(dnn_model, "training_soph", overwrite=True, include_optimizer=True)
+tf.keras.models.save_model(dnn_model, "training_naive_relu", overwrite=True, include_optimizer=True)
 
 #%%
 def plot_loss(history):

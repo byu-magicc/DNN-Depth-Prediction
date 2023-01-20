@@ -26,7 +26,20 @@ def read_pfm(filename):
         shape = (height, width, 3) if channels == 3 else (height, width)
         return np.reshape(decoded, shape) * scale
 
+f = 465.6
+camera_intrinsics = np.array([[f, 0, 320],
+                              [0, f, 240],
+                              [0, 0, 1]])
 
+cam_inv = np.linalg.inv(camera_intrinsics)
+
+def calibrate_pixels(pos):
+    new_pos = np.reshape(pos, (2, -1))
+    uncalibrated = np.ones((3,1))
+    uncalibrated[0:2] = new_pos
+
+    calibrated = cam_inv @ uncalibrated
+    return np.reshape(calibrated[0:2], pos.shape)
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
@@ -36,7 +49,7 @@ record_lines = []
 
 try:
     recording_file = open(directory + "airsim_rec.txt","r")
-    data_write_file = open(directory+"naive_nn_data.csv", "w", newline="")
+    data_write_file = open(directory+"naive_calib_nn_data.csv", "w", newline="")
     dataWriter = csv.writer(data_write_file)
     data_reader = csv.DictReader(recording_file, delimiter="\t")
     for line in data_reader:
@@ -59,7 +72,7 @@ try:
         featfilename = both_images.split(";")[0].split(".")[0] + ".csv"
 
         try:
-            feat_file = open(directory+"naive_feat_data/" + featfilename)
+            feat_file = open(directory+"naive_calib_feat_data/" + featfilename)
             feat_reader = csv.DictReader(feat_file)
             feats = []
             for feat in feat_reader:
@@ -109,7 +122,9 @@ try:
                             closest_feats.pop()
                             
                     depth = np.min(pixels[i:i+2, j:j+2])
-                    row = [depth, x, y, line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
+                    pos = np.array([x, y])
+                    pos_calib = calibrate_pixels(pos)
+                    row = [depth, pos_calib[0], pos_calib[1], line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
                     for feat in closest_feats:
                         row.append(feat["pos_x"])
                         row.append(feat["pos_y"])
