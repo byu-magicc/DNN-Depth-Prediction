@@ -42,6 +42,8 @@ def calibrate_pixels(pos):
     return np.reshape(calibrated[0:2], pos.shape)
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
+writing_filename = "calib_nn_data.csv"
+feat_directory = "naive_calib_feat_data/"
 
 header = ["depth","PXx", "PXy", "Q_W", "Q_X", "Q_Y", "Q_Z", "Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
 
@@ -49,7 +51,7 @@ record_lines = []
 
 try:
     recording_file = open(directory + "airsim_rec.txt","r")
-    data_write_file = open(directory+"naive_calib_nn_data.csv", "w", newline="")
+    data_write_file = open(directory+writing_filename, "w", newline="")
     dataWriter = csv.writer(data_write_file)
     data_reader = csv.DictReader(recording_file, delimiter="\t")
     for line in data_reader:
@@ -72,7 +74,7 @@ try:
         featfilename = both_images.split(";")[0].split(".")[0] + ".csv"
 
         try:
-            feat_file = open(directory+"naive_calib_feat_data/" + featfilename)
+            feat_file = open(directory+ feat_directory + featfilename)
             feat_reader = csv.DictReader(feat_file)
             feats = []
             for feat in feat_reader:
