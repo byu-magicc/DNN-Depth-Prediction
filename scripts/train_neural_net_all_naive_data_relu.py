@@ -92,7 +92,7 @@ plot_loss(history)
 test_predictions = dnn_model.predict(test_features).flatten()
 
 a = plt.axes(aspect='equal')
-plt.scatter(test_labels, test_predictions, 0.1)
+plt.scatter(test_labels, test_predictions, 0.01)
 plt.xlabel('True Values [m]')
 plt.ylabel('Predictions [m]')
 lims = [0, 100]
