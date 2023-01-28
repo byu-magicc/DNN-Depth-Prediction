@@ -98,7 +98,7 @@ try:
                     
                     depth = np.min(pixels[i:i+2, j:j+2])
                     row = [depth, x, y, line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
-                    for feat_w in closest_feats:
+                    for feat in closest_feats:
                         row.append(feat["pos_x"])
                         row.append(feat["pos_y"])
                         row.append(feat["vel_x"])

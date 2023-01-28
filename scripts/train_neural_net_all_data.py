@@ -50,6 +50,7 @@ def build_and_compile_model(norm):
       layers.Dense(64, activation='relu'),
       layers.Dense(64, activation='relu'),
       layers.Dense(64, activation='relu'),
+      layers.Dense(64, activation='relu'),
       layers.Dense(1)
   ])
 
@@ -59,7 +60,7 @@ def build_and_compile_model(norm):
 
 dnn_model = build_and_compile_model(normalizer)
 #%%
-checkpoint_path = "training_calib_soph_3/cp_{epoch:04d}.ckpt"
+checkpoint_path = "training_calib_soph_4/cp_{epoch:04d}.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback=tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                save_weights_only=True,
