@@ -70,6 +70,9 @@ velx = None
 vely = None
 velz = None
 
+predicted_depth = []
+actual_depth = []
+
 for line in data_reader:
     if len(line.keys()) < 10:
         continue
@@ -85,8 +88,10 @@ for line in data_reader:
         velocity_global = np.array([[velx],
                             [vely],
                             [velz]])
-        velocity_body = rot_mat @ velocity_global
-        velocity_camera = velocity_body#TODO: rotate velocity into camera frame?
+        velocity_body = rot_mat.T @ velocity_global
+        velocity_camera = np.array([[0, -1, 0],
+                                    [0, 0, -1],
+                                    [1, 0, 0]]) @ velocity_body
     tcol_sum = 0
     for num in range(1,5):
         featx = line["F" + str(num) + "x"]
@@ -110,4 +115,30 @@ for line in data_reader:
 
 
     vel_comp = calibrated_pixel_pos.T @ velocity_camera
-    depth = vel_comp * tcol
+    depth = float(vel_comp * tcol)
+    depth = (depth if depth <= 100 else 100) if depth >= 0 else 0
+    predicted_depth.append(depth)
+    depth = line["depth"]
+    depth = depth if depth <= 100 else 100
+    actual_depth.append(depth)
+#%%
+a = plt.axes(aspect='equal')
+plt.scatter(predicted_depth, actual_depth, 0.1)
+plt.xlabel('True Values [m]')
+plt.ylabel('Predictions [m]')
+lims = [0, 100]
+plt.xlim(lims)
+plt.ylim(lims)
+error = 5
+_ = plt.plot(lims, lims, "k")
+_ = plt.plot(lims, [error, 100 + error], "b")
+_ = plt.plot(lims, [-error, 100-error], "r")
+#%%
+errors = np.array(predicted_depth) - np.array(actual_depth)
+count = 0
+for e in errors:
+  if np.abs(e) < error:
+    count += 1
+num_test_features = len(predicted_depth)
+print(str(count) + "/" + str(num_test_features) + " (" + str((count+0.0)/num_test_features*100) + "%) are within " + str(error) + " of their true value")
+# %%

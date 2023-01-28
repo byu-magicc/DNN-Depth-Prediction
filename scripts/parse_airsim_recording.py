@@ -4,6 +4,7 @@ from pathlib import Path
 import struct
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from kd_tree_class import KD_Tree
 
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
@@ -43,7 +44,7 @@ def calibrate_pixels(pos):
 
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 writing_filename = "calib_nn_data.csv"
-feat_directory = "naive_calib_feat_data/"
+feat_directory = "feat_data/"
 
 header = ["depth","PXx", "PXy", "Q_W", "Q_X", "Q_Y", "Q_Z", "Velx", "Vely", "Velz", "Wx", "Wy", "Wz","F1x", "F1y", "F1vx", "F1vy", "F2x", "F2y", "F2vx", "F2vy", "F3x", "F3y", "F3vx", "F3vy", "F4x", "F4y", "F4vx", "F4vy"]
 
@@ -78,56 +79,26 @@ try:
             feat_reader = csv.DictReader(feat_file)
             feats = []
             for feat in feat_reader:
+                feat["pos_x"] = float(feat["pos_x"])
+                feat["pos_y"] = float(feat["pos_y"])
                 feats.append(feat)
             feat_file.close()
             pixels = read_pfm(directory + "images/" + depth_image_filename)
 
-            # plt.imshow(mpimg.imread(directory+"images/"+color_filename))
-            # plt.show()
-            # plt.imshow(pixels)
-            # plt.show()
-
-
+            tree = KD_Tree(feats, ["pos_x", "pos_y"])
             for i in range(0, pixels.shape[0]-1, 2):
-                # closest_feats = []
-                # for feat in feats:
-                #     if len(closest_feats) < 4:
-                #         dist = np.sqrt((i - feat["pos_x"])**2 + feat["pos_y"]**2)
-                #         feat["dist"] = dist
-                #         closest_feats.append(feat)
-                #         continue
-                #     dist = np.sqrt((i - feat["pos_x"])**2 + feat["pos_y"]**2)
-                #     i = 4
-                #     while dist < closest_feats[i-1]["dist"]:
-                #         i -= 1
-                #     if i != 4:
-                #         feat["dist"] = dist
-                #         closest_feats.insert(i, feat)
-                #         closest_feats.pop()
+                closest_feats = []
                 for j in range(0, pixels.shape[1]-1, 2):
-                    x = 2*i+1
-                    y = 2*j+1
-                    closest_feats = []
-                    for feat in feats:
-                        if len(closest_feats) < 4:
-                            dist = np.sqrt((x - float(feat["pos_x"]))**2 + (y -float(feat["pos_y"]))**2)
-                            feat["dist"] = dist
-                            closest_feats.append(feat)
-                            continue
-                        dist = np.sqrt((x - float(feat["pos_x"]))**2 + (y - float(feat["pos_y"]))**2)
-                        pos = 4
-                        while dist < closest_feats[pos-1]["dist"] and pos > 0:
-                            pos -= 1
-                        if pos != 4:
-                            feat["dist"] = dist
-                            closest_feats.insert(pos, feat)
-                            closest_feats.pop()
-                            
+                    uncal_point = np.array([2*i+1,2*j+1]) #uncalibrated pixel location
+                    cal_point = calibrate_pixels(uncal_point)
+                    x = cal_point[0]
+                    y = cal_point[1]
+                    point = {"pos_x":x, "pos_y":y}
+                    closest_feats = tree.find_nearest_neighbors(point, closest_feats)
+                    
                     depth = np.min(pixels[i:i+2, j:j+2])
-                    pos = np.array([x, y])
-                    pos_calib = calibrate_pixels(pos)
-                    row = [depth, pos_calib[0], pos_calib[1], line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
-                    for feat in closest_feats:
+                    row = [depth, x, y, line["Q_W"], line["Q_X"], line["Q_Y"], line["Q_Z"], line["Velx"], line["Vely"], line["Velz"], line["Wx"], line["Wy"], line["Wz"]]
+                    for feat_w in closest_feats:
                         row.append(feat["pos_x"])
                         row.append(feat["pos_y"])
                         row.append(feat["vel_x"])
