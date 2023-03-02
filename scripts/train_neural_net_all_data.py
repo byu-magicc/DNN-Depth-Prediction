@@ -32,6 +32,8 @@ def cap_to_hundred(input):
 
 dataset["depth"] = dataset["depth"].apply(cap_to_hundred)
 
+print("Number of off cells: " + str(dataset.isnull().sum().sum()))
+
 train_dataset = dataset.sample(frac=0.8, random_state=0)
 test_dataset = dataset.drop(train_dataset.index)
 

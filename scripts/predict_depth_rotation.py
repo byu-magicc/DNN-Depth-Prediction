@@ -79,11 +79,12 @@ body_to_camera = np.array([[0, 1, 0],
                            [0, 0, 1],
                            [1, 0, 0]])
 
+
 for line in data_reader:
     if len(line.keys()) < 10:
         continue
     if (not g_velx == line["\"Velx\""]) and (not g_vely == line["\"Vely\""]) and (not g_velz == line["\"Velz\""]):
-        updated = True
+        # updated = True
         g_velx = line["\"Velx\""]
         g_vely = line["\"Vely\""]
         g_velz = line["\"Velz\""]
@@ -102,15 +103,15 @@ for line in data_reader:
         velz = velocity_camera[2]
         omega_body = np.array([[line["\"Wx\""]],[line["\"Wy\""]],[line["\"Wz\""]]])
         omega_camera = np.reshape(body_to_camera @ omega_body,(3))
-        # wx = omega_camera[0]
-        # wy = omega_camera[1]
-        # wz = omega_camera[2]
-    depth_sum = 0
+        wx = omega_camera[0]
+        wy = omega_camera[1]
+        wz = omega_camera[2]
+    # depth_sum = 0
     # if not updated or np.linalg.norm(omega_camera) > 0.0173:
     #     updated = False
     #     continue
-    # if np.sqrt((line["\"F1x\""] - line["\"PXx\""])**2 + (line["\"F1y\""] - line["\"PXy\""])**2) > 0.00283:
-    #     continue
+    if np.sqrt((line["\"F1x\""] - line["\"PXx\""])**2 + (line["\"F1y\""] - line["\"PXy\""])**2) > 0.00283:
+        continue
     # for num in range(1,5):
     num = 1
     featx = line["\"F" + str(num) + "x\""]
@@ -123,16 +124,14 @@ for line in data_reader:
     # feat_position = calibrate_pixels(feat_position)
     # feat_velocity = calibrate_pixels(feat_velocity)
 
-    # tcolx = feat_position[0]/feat_velocity[0]
-    # tcoly = feat_position[1]/feat_velocity[1]
-
-    pz_x = (velx - velz*featx)/-featvx
-    pz_y = (vely - velz*featy)/-featvy
+    pz_x = (velx - velz*featx)/(-featx*featy*wx + (1+featx**2)*wy-featy*wz-featvx)
+    pz_y = (vely-velz*featy)/(-(1+featy**2)*wx+featx*featy*wy+featx*wz-featvy)
 
     pz = (pz_x + pz_y)/2
     depth = pz*np.sqrt(1+featx**2+featy**2)
+    # depth = depth_sum#/4
 
-    # pixel_pos = np.array([[line["PXx"]],[line["PXy"]],[1]])
+    # pixel_pos = np.array([[line["\"PXx\""]],[line["\"PXy\""]],[1]])
     # calibrated_pixel_pos = cam_inv @ pixel_pos
 
     # depth = (depth if depth <= 100 else 100) if depth >= 0 else 0
@@ -151,7 +150,7 @@ plt.xlim(lims)
 plt.ylim(lims)
 error = 5
 _ = plt.plot(lims, lims, "k")
-_ = plt.plot(lims, [lims[0] + error, lims[1] + error], "b")
+_ = plt.plot(lims, [lims[0]+error, lims[1] + error], "b")
 _ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
 #%%
 errors = np.array(predicted_depth) - np.array(actual_depth)

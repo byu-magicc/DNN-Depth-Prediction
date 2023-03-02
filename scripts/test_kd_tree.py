@@ -76,7 +76,10 @@ try:
                     point = {"pos_x":x, "pos_y":y}
                     kd_closest = tree.find_nearest_neighbors(point, kd_closest)
 
-                    
+                    if len(brute_feat) < 4:
+                        print("Brute force failed to produce 4 features")
+                    if len(kd_closest) < 4:
+                        print("KD-Tree failed to produce 4 features on line " + str(line_num))
                     for brute_feat, kd_feat in zip(brute_force_closest[0:4],kd_closest):
                         if (not brute_feat["pos_x"] == kd_feat["pos_x"] or
                         not brute_feat["pos_y"] == kd_feat["pos_y"] or
@@ -85,7 +88,7 @@ try:
                             print("Mistake made on line " + str(line_num))
                             break
             print("Finished line " + str(line_num))
-            break
+            
             
         except FileNotFoundError:
             # no feature velocity data for this frame, skip it

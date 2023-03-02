@@ -48,15 +48,15 @@ class KD_Tree:
             )
         self.tree = build(points=points, depth=0)
 
-    def find_nearest_neighbors(self, point, best_list=[], num_neighbors=4):
+    def find_nearest_neighbors(self, point, previous_best=[], num_neighbors=4):
         """Find the nearest neighbor in a k-d tree for a given point.
         """
 
-        if best_list is None:
+        if previous_best is None or len(previous_best) == 0:
             best_list = []
-        elif len(best_list) > 0:
+        elif len(previous_best) > 0:
             new_list = []
-            for item in best_list:
+            for item in previous_best:
                 distance = self.SED(point, item)
                 new_item = NNRecord(item, distance)
                 new_list.append(new_item)
@@ -85,7 +85,7 @@ class KD_Tree:
                 return
             
             distance = self.SED(tree.value, point)
-            if len(best_list) == 0 or distance < best_list[-1].distance:
+            if len(best_list) == 0 or len(best_list) < 4 or distance < best_list[-1].distance:
                 new_item = NNRecord(point=tree.value, distance=distance)
                 add_to_best(new_item)
             
