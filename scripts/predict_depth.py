@@ -151,18 +151,15 @@ plt.xlim(lims)
 plt.ylim(lims)
 error = 5
 _ = plt.plot(lims, lims, "k")
-_ = plt.plot(lims, [lims[0] + error, lims[1] + error], "b")
-_ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
+# _ = plt.plot(lims, [lims[0] + error, lims[1] + error], "b")
+# _ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
 #%%
-errors = np.array(predicted_depth) - np.array(actual_depth)
-count = 0
-for e in errors:
-  if np.abs(e) < error:
-    count += 1
-num_test_features = len(predicted_depth)
-print(str(count) + "/" + str(num_test_features) + " (" + str((count+0.0)/num_test_features*100) + "%) are within " + str(error) + " of their true value")
+
+relative_error = np.abs((np.clip(np.array(predicted_depth), 0, 100) - np.array(actual_depth))/np.array(actual_depth))
+avg_relative_error = np.sum(relative_error)/len(predicted_depth)
+print("The average relative error is " + str(avg_relative_error*100) + "%")
 # %%
-bins = bin_for_heatmap(predicted_depth, actual_depth)
+bins = bin_for_heatmap(actual_depth, predicted_depth)
 ax = sns.heatmap(bins+0.1, norm=LogNorm())
 ax.invert_yaxis()
 plt.show()

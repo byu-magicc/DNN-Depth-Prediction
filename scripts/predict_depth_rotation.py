@@ -78,6 +78,9 @@ actual_depth = []
 body_to_camera = np.array([[0, 1, 0],
                            [0, 0, 1],
                            [1, 0, 0]])
+pxc = 0.
+pyc = 0.
+pzc = 0.3
 
 
 for line in data_reader:
@@ -124,8 +127,8 @@ for line in data_reader:
     # feat_position = calibrate_pixels(feat_position)
     # feat_velocity = calibrate_pixels(feat_velocity)
 
-    pz_x = (velx - velz*featx)/(-featx*featy*wx + (1+featx**2)*wy-featy*wz-featvx)
-    pz_y = (vely-velz*featy)/(-(1+featy**2)*wx+featx*featy*wy+featx*wz-featvy)
+    pz_x = (pyc*wz - pzc*wy - velx-pxc*featx*wy + pyc*featx*wx+velz*featx)/(featvx - featy*wz + (1+featx**2)*wy - featx*featy*wx)
+    pz_y =(-pxc*wz + pzc*wx - vely-pxc*featy*wy + pyc*featy*wx+velz*featy)/(featvy + featx*wz - (1+featy**2)*wx + featx*featy*wy)
 
     pz = (pz_x + pz_y)/2
     depth = pz*np.sqrt(1+featx**2+featy**2)
@@ -145,23 +148,19 @@ a = plt.axes(aspect='equal')
 plt.scatter(predicted_depth, actual_depth, 0.1)
 plt.xlabel('True Values [m]')
 plt.ylabel('Predictions [m]')
-lims = [-100, 100]
+lims = [0, 100]
 plt.xlim(lims)
 plt.ylim(lims)
-error = 5
+# error = 5
 _ = plt.plot(lims, lims, "k")
-_ = plt.plot(lims, [lims[0]+error, lims[1] + error], "b")
-_ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
+# _ = plt.plot(lims, [lims[0]+error, lims[1] + error], "b")
+# _ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
 #%%
-errors = np.array(predicted_depth) - np.array(actual_depth)
-count = 0
-for e in errors:
-  if np.abs(e) < error:
-    count += 1
-num_test_features = len(predicted_depth)
-print(str(count) + "/" + str(num_test_features) + " (" + str((count+0.0)/num_test_features*100) + "%) are within " + str(error) + " of their true value")
+relative_errors = np.abs((np.clip(np.array(predicted_depth),0,100) - np.array(actual_depth))/np.array(actual_depth))
+avg_rel_error = np.sum(relative_errors)/len(predicted_depth)
+print("The average relative error is " + str(avg_rel_error*100) + "%")
 # %%
-bins = bin_for_heatmap(predicted_depth, actual_depth)
+bins = bin_for_heatmap(actual_depth, predicted_depth)
 ax = sns.heatmap(bins+0.1, norm=LogNorm())
 ax.invert_yaxis()
 plt.show()
