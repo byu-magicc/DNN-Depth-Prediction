@@ -6,6 +6,8 @@ import struct
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from kd_tree_class import KD_Tree
+import time
+start_time = time.time()
 
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
@@ -86,8 +88,9 @@ try:
             pixels = read_pfm(directory + "images/" + depth_image_filename)
             # normalized = cv2.normalize(np.clip(pixels, 0, 100),None,255,0,cv2.NORM_MINMAX,cv2.CV_8UC1)
             # normalized = cv2.cvtColor(normalized,cv2.COLOR_GRAY2BGR)
-            
+            feats = []
             for feat in feat_reader:
+                feats.append(feat)
                 featx = float(feat["pos_x"])
                 featy = float(feat["pos_y"])
                 feat_pos = np.array([featx, featy])
@@ -109,6 +112,7 @@ try:
                 row.append(feat["vel_y"])
                 dataWriter.writerow(row)
             feat_file.close()
+            # tree = KD_Tree(feats, ["pos_x", "pos_y"])
             print("Finished line " + str(line_num))
             
         except FileNotFoundError:
@@ -117,3 +121,6 @@ try:
 
 except FileNotFoundError:
     print("Files not found")
+
+stop_time = time.time()
+print("Run time: " +str(stop_time - start_time))
