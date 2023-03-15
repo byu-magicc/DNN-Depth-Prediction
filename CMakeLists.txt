@@ -68,4 +68,8 @@ add_executable(feature_tracker
             src/vision/feature_tracker.cpp
             src/vision/gyro_integrator.cpp)
 add_dependencies(feature_tracker ${catkin_EXPORTED_TARGETS})
+add_executable(depth_predictor
+            src/depth/depth_predictor_node.cpp
+            src/depth/depth_predictor.cpp)
+            add_dependencies(feature_tracker ${catkin_EXPORTED_TARGETS})
 target_link_libraries(feature_tracker ${catkin_LIBRARIES} ${OpenCV_LIBS})
