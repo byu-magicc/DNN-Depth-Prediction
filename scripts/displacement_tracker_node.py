@@ -17,12 +17,10 @@ class DisplacementTrackerNode:
 
     # This part calibrates the pixels according to AirSim's camera characteristics
     # Remove if using normalized pixels from the message (see below)
-    f = 465.6
-    camera_intrinsics = np.array([[f, 0, 320],
-                                [0, f, 240],
-                                [0, 0, 1]])
-
-    cam_inv = np.linalg.inv(camera_intrinsics)
+    fx = 465.6
+    fy = fx
+    cx = 320
+    cy = 240
 
     def calibrate_pixels(self, pos):
         new_pos = np.reshape(pos, (2, -1))
@@ -36,8 +34,21 @@ class DisplacementTrackerNode:
     def __init__(self) -> None:
         self.trackedIDs = set()
         self.trackedFeaturesPath = dict()
+        ns = rospy.get_namespace()
+        self.fx = rospy.get_param(ns + "/fx")
+        self.fy = rospy.get_param(ns + "/fy")
+        self.cx = rospy.get_param(ns + "/cx")
+        self.cy = rospy.get_param(ns + "/cy") # TODO: maybe let Jake's stuff handle the calibration with the actual camera.
+        camera_intrinsics = np.array([[self.fx, 0, self.cx],
+                                [0, self.fy, self.cy],
+                                [0, 0, 1]])
+
+        self.cam_inv = np.linalg.inv(camera_intrinsics)
         rospy.Subscriber("tracked_features", TrackedFeats, self.features_callback, queue_size=1)
-        self.feature_disp_publisher = rospy.Publisher("tracked_disp", TrackedFeatsWDis, queue_size=1)
+        publish_topic = rospy.get_param(ns + "/feat_velocity_topic", "tracked_disp")
+        self.feature_disp_publisher = rospy.Publisher(publish_topic, TrackedFeatsWDis, queue_size=1)
+
+        
 
     def run(self):
         rospy.spin()

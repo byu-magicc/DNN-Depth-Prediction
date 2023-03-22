@@ -2,7 +2,7 @@ img_w: 640
 img_h: 480
 img_topic: "/camera_image"
 imu_topic: "/camera/gyro/sample"
-feat_velocity_topic: "/feat_velocity"
+feat_velocity_topic: "/tracked_disp"
 
 body_to_camera_rotation: [0, 1, 0,
                           0, 0, 1,
@@ -16,10 +16,10 @@ distortion_parameters:
    p2: 0.0
 
 projection_parameters:
-   fx: 6.141507568359375e+02
-   fy: 6.142086791992188e+02
-   cx: 3.224935607910156e+02
-   cy: 2.4351528930664062e+02
+   fx: 465.6
+   fy: 465.6
+   cx: 320
+   cy: 240
 
 # transformation from imu to camera (calibrate with kalibr)
 imu_cam_extrinsics: [ 0.9999005,  0.00479003,  0.01326819,  0.01571363,
