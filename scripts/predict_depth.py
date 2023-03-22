@@ -106,9 +106,9 @@ for line in data_reader:
         # wy = omega_camera[1]
         # wz = omega_camera[2]
     depth_sum = 0
-    # if not updated or np.linalg.norm(omega_camera) > 0.0173:
-    #     updated = False
-    #     continue
+    if not updated or np.linalg.norm(omega_camera) > 0.0173:
+        updated = False
+        continue
     # if np.sqrt((line["\"F1x\""] - line["\"PXx\""])**2 + (line["\"F1y\""] - line["\"PXy\""])**2) > 0.00283:
     #     continue
     # for num in range(1,5):

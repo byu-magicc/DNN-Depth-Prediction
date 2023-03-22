@@ -12,6 +12,9 @@ class DisplacementTrackerNode:
 
     trackedFeaturesPath = None
 
+    pastTimeS = None
+    pastTimeNs = None
+
     # This part calibrates the pixels according to AirSim's camera characteristics
     # Remove if using normalized pixels from the message (see below)
     f = 465.6
@@ -67,13 +70,14 @@ class DisplacementTrackerNode:
 
         # run through the features and calculate displacements. Only include a feature in the result if it has a displacement
         features = []
-        
+        currentTimeS = featsMsg.header.stamp.secs
+        currentTimeNs = featsMsg.header.stamp.nsecs
 
         for featID in self.trackedFeaturesPath:
             path = self.trackedFeaturesPath[featID]
 
             # check if we can calculate the displacement
-            if len(path) < 2:
+            if len(path) < 2 or self.pastTimeS is None:
                 continue
 
             current_feat_location = np.array([path[-1].x, path[-1].y])
@@ -90,8 +94,11 @@ class DisplacementTrackerNode:
             feat.feat_id=featID
             feat.pt.x = calibrated_current_location[0]
             feat.pt.y = calibrated_current_location[1]
-            feat.displacement.x = calibrated_displacement[0]
-            feat.displacement.y = calibrated_displacement[1]
+
+            delt = (currentTimeS - self.pastTimeS) + (currentTimeNs - self.pastTimeNs)/1000000000.
+
+            feat.displacement.x = calibrated_displacement[0] / delt
+            feat.displacement.y = calibrated_displacement[1] / delt
             feat.displacement.z = 0
             features.append(feat)
         
@@ -100,6 +107,8 @@ class DisplacementTrackerNode:
         featsMsg.new_keyframe = feats.new_keyframe
         featsMsg.feats = features
         self.feature_disp_publisher.publish(featsMsg)
+        self.pastTimeS = currentTimeS
+        self.pastTimeNs = currentTimeNs
 
 if __name__=="__main__":
     rospy.init_node("displacement_tracker")

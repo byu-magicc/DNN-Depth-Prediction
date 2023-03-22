@@ -2,6 +2,12 @@ img_w: 640
 img_h: 480
 img_topic: "/camera_image"
 imu_topic: "/camera/gyro/sample"
+feat_velocity_topic: "/feat_velocity"
+
+body_to_camera_rotation: [0, 1, 0,
+                          0, 0, 1,
+                          1, 0, 0]
+camera_offset_from_body: [0, 0, 0.3]
 
 distortion_parameters:
    k1: 0.0
