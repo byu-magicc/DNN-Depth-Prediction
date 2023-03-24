@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV 4.4.0 REQUIRED)
 find_package(Ceres REQUIRED)
+find_package(octomap REQUIRED)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -62,7 +63,8 @@ catkin_package(
 include_directories(include 
   ${catkin_INCLUDE_DIRS} 
   ${EIGEN3_INCLUDE_DIRS} 
-  ${CERES_INCLUDE_DIRS})
+  ${CERES_INCLUDE_DIRS}
+  ${OCTOMAP_INCLUDE_DIRS})
 
 add_executable(feature_tracker
             src/vision/feature_tracker_node.cpp
@@ -70,8 +72,9 @@ add_executable(feature_tracker
             src/vision/gyro_integrator.cpp)
 add_executable(depth_predictor
             src/depth/depth_predictor_node.cpp
-            src/depth/depth_predictor.cpp)
+            src/depth/depth_predictor.cpp
+            src/depth/OctoMap.cpp)
 add_dependencies(feature_tracker ${catkin_EXPORTED_TARGETS})
 add_dependencies(depth_predictor ${catkin_EXPORTED_TARGETS})
 target_link_libraries(feature_tracker ${catkin_LIBRARIES} ${OpenCV_LIBS})
-target_link_libraries(depth_predictor ${catkin_LIBRARIES})
+target_link_libraries(depth_predictor ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})

@@ -78,9 +78,9 @@ actual_depth = []
 body_to_camera = np.array([[0, 1, 0],
                            [0, 0, 1],
                            [1, 0, 0]])
-pxc = 0.
+pxc = 0.3
 pyc = 0.
-pzc = 0.3
+pzc = 0.
 
 
 for line in data_reader:

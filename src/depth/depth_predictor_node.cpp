@@ -1,10 +1,20 @@
 #include "depth/depth_predictor_node.h"
+#include "depth/AbstractMap.h"
+#include "depth/OctoMap.h"
+
+#define OCTOMAP_DEPTH_MAP 0
+#define BSPLINE_DETPH_MAP 1
+#define DEPTH_MAP_TYPE OCTOMAP_DEPTH_MAP
+
 
 namespace depth
 {
 
 DepthPredictorNode::DepthPredictorNode():
-  nh_(), nh_private_("~")
+  nh_(), nh_private_("~"),
+    #if DEPTH_MAP_TYPE == OCTOMAP_DEPTH_MAP
+    map_(new OctoMap())
+    #endif
 {
     std::string imu_topic, feat_velocity_topic;
     if (!nh_private_.getParam("/imu_topic", imu_topic) || !nh_private_.getParam("/feat_velocity_topic", feat_velocity_topic)) {
@@ -20,23 +30,34 @@ DepthPredictorNode::DepthPredictorNode():
                                         0, 0, 1,
                                         1, 0, 0};
     nh_private_.param<std::vector<double>>("/body_to_camera_rotation", body_to_cam_vec, body_to_cam_vec);
-    Eigen::Matrix3d body_to_cam = Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>>(body_to_cam_vec.data());
+    body_to_cam = Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>>(body_to_cam_vec.data());
     std::vector<double> camera_offset_vec{0.0, 0.0, 0.3};
     nh_private_.param<std::vector<double>>("/camera_offset_from_body", camera_offset_vec, camera_offset_vec);
-    Eigen::Vector3d camera_offset = Eigen::Map<Eigen::Matrix<double, 3, 1>>(camera_offset_vec.data());
+    camera_offset = Eigen::Map<Eigen::Matrix<double, 3, 1>>(camera_offset_vec.data());
     depth_predictor_ = std::unique_ptr<DepthPredictor>(new DepthPredictor(body_to_cam, camera_offset));
 }
 
 void DepthPredictorNode::feat_callback(const ttc_object_avoidance::TrackedFeatsWDis tracked_feats)
 {
-    auto depths = depth_predictor_->calculateDepth(getAvgVelocity(), quat, getAvgOmega(), tracked_feats.feats);
-
+    auto points = depth_predictor_->calculateDepth(getAvgVelocity(), quat, getAvgOmega(), tracked_feats.feats);
+    
+    Eigen::Matrix3d rot_body_to_inertial(quat.inverse());
+    
+    Eigen::Vector3d camera_origin_intertial = position + Eigen::Matrix3d (quat).transpose() * camera_offset;
+    Eigen::Quaterniond camera_to_inertial(body_to_cam.transpose()*rot_body_to_inertial);
+    map_->insert(points,camera_origin_intertial, camera_to_inertial);
 }
 
-void DepthPredictorNode::velocity_callback(geometry_msgs::Vector3ConstPtr vel) {
-    Eigen::Vector3d newVel({{vel->x, vel->y, vel->z}});
+void DepthPredictorNode::odometry_callback(nav_msgs::OdometryConstPtr odm) {
+    geometry_msgs::Vector3 vel = odm->twist.twist.linear;
+    Eigen::Vector3d newVel({{vel.x, vel.y, vel.z}});
     velocity_total += newVel;
     num_velocity_measurements++;
+    geometry_msgs::Point pos = odm->pose.pose.position;
+    geometry_msgs::Quaternion quaternion = odm->pose.pose.orientation;
+
+    position = Eigen::Vector3d({{pos.x, pos.y, pos.z}});
+    quat = Eigen::Quaterniond(quaternion.w,quaternion.x, quaternion.y, quaternion.z);
 }
 
 void DepthPredictorNode::imu_callback(const sensor_msgs::ImuConstPtr imu_data) {

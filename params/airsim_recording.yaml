@@ -4,9 +4,11 @@ img_topic: "/camera_image"
 imu_topic: "/camera/gyro/sample"
 feat_velocity_topic: "/tracked_disp"
 
+# rotation matrix from the body
 body_to_camera_rotation: [0, 1, 0,
                           0, 0, 1,
                           1, 0, 0]
+# offset of the camera from the body in the body frame
 camera_offset_from_body: [0, 0, 0.3]
 
 distortion_parameters:
