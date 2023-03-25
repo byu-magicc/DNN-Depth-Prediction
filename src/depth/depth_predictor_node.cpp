@@ -16,12 +16,14 @@ DepthPredictorNode::DepthPredictorNode():
     map_(new OctoMap())
     #endif
 {
-    std::string imu_topic, feat_velocity_topic;
-    if (!nh_private_.getParam("/imu_topic", imu_topic) || !nh_private_.getParam("/feat_velocity_topic", feat_velocity_topic)) {
+    std::string imu_topic, feat_velocity_topic, odm_topic;
+    if (!nh_private_.getParam("/imu_topic", imu_topic) || !nh_private_.getParam("/feat_velocity_topic", feat_velocity_topic)
+        ||!nh_private_.getParam("/odometry_topic", odm_topic)) {
         ROS_FATAL("Need topic names!!");
     }
 
     nh_.subscribe(imu_topic, 1, &DepthPredictorNode::imu_callback, this);
+    nh_.subscribe(odm_topic, 1, &DepthPredictorNode::odometry_callback, this);
     nh_.subscribe(feat_velocity_topic, 1, &DepthPredictorNode::feat_callback, this);
 
     // TODO: Publish feature depths?

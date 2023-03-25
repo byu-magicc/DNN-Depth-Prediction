@@ -1,8 +1,9 @@
 img_w: 640
 img_h: 480
 img_topic: "/camera_image"
-imu_topic: "/camera/gyro/sample"
+imu_topic: "/body/gyro/sample"
 feat_velocity_topic: "/tracked_disp"
+odometry_topic: "/odometry"
 
 # rotation matrix from the body
 body_to_camera_rotation: [0, 1, 0,

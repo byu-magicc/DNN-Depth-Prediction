@@ -6,6 +6,8 @@ import rospy
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
 from ttc_object_avoidance.msg import TrackedFeatsWDis
 import time
 
@@ -23,7 +25,13 @@ class AirSimRecordingReaderNode:
     def __init__(self) -> None:
         ns = rospy.get_namespace()
         image_topic_name = rospy.get_param(ns + "/img_topic", "camera_image")
+        odometry_topic_name = rospy.get_param(ns + "/odometry_topic", "/odometry")
+        imu_topic_name = rospy.get_param(ns + "/imu_topic", "/body/gyro/sample")
+
         self.image_pub = rospy.Publisher(image_topic_name, Image, queue_size=1)
+        self.odometry_pub = rospy.Publisher(odometry_topic_name, Odometry, queue_size=1)
+        self.imu_pub = rospy.Publisher(imu_topic_name, Imu, queue_size=1)
+
         self.img_w = rospy.get_param(ns + "/img_w", self.img_w)
         self.img_h = rospy.get_param(ns + "/img_h", self.img_h)
         # uncomment line below to write tracked features to files.
@@ -62,6 +70,32 @@ class AirSimRecordingReaderNode:
 
         # resize it to the proper scale
         resized_img = cv2.resize(img, dim)
+
+        # Publish the odometry and IMU data as well
+        odm = Odometry()
+        imu = Imu()
+        imu.angular_velocity.x = float(line["Wx"])
+        imu.angular_velocity.y = float(line["Wy"])
+        imu.angular_velocity.z = float(line["Wz"])
+
+        odm.pose.pose.position.x = float(line["POS_X"])
+        odm.pose.pose.position.y = float(line["POS_Y"])
+        odm.pose.pose.position.z = float(line["POS_Z"])
+
+        odm.pose.pose.orientation.w = float(line["Q_W"])
+        odm.pose.pose.orientation.x = float(line["Q_X"])
+        odm.pose.pose.orientation.y = float(line["Q_Y"])
+        odm.pose.pose.orientation.z = float(line["Q_Z"])
+
+        odm.twist.twist.linear.x = float(line["Velx"])
+        odm.twist.twist.linear.y = float(line["Vely"])
+        odm.twist.twist.linear.z = float(line["Velz"])
+
+        imu.header.stamp = rospy.Time.now()
+        odm.header.stamp = rospy.Time.now()
+
+        self.imu_pub.publish(imu)
+        self.odometry_pub.publish(odm)
 
         # publish it to the people
         self.image_pub.publish(bridge.cv2_to_imgmsg(resized_img, encoding="bgr8"))
