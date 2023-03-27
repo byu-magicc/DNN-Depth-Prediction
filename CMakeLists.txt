@@ -57,7 +57,7 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs nav_msgs cv_bridge image_transport message_runtime
+  CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs nav_msgs cv_bridge image_transport message_runtime octomap_ros
 )
 
 include_directories(include 
@@ -65,6 +65,8 @@ include_directories(include
   ${EIGEN3_INCLUDE_DIRS} 
   ${CERES_INCLUDE_DIRS}
   ${OCTOMAP_INCLUDE_DIRS})
+
+link_directories(${OCTOMAP_LIBRARY_DIRS})
 
 add_executable(feature_tracker
             src/vision/feature_tracker_node.cpp

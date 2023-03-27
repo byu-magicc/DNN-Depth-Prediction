@@ -4,7 +4,6 @@
 #include <eigen3/Eigen/Dense>
 #include <memory>
 #include "ttc_object_avoidance/FeatAndDisplacement.h"
-#include "ttc_object_avoidance/FeatAndDepth.h"
 
 namespace depth
 {
