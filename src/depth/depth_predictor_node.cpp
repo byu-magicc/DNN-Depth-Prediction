@@ -1,6 +1,4 @@
 #include "depth/depth_predictor_node.h"
-#include "depth/AbstractMap.h"
-#include "depth/OctoMap.h"
 
 #define OCTOMAP_DEPTH_MAP 0
 #define BSPLINE_DETPH_MAP 1
@@ -22,9 +20,11 @@ DepthPredictorNode::DepthPredictorNode():
         ROS_FATAL("Need topic names!!");
     }
 
-    nh_.subscribe(imu_topic, 1, &DepthPredictorNode::imu_callback, this);
-    nh_.subscribe(odm_topic, 1, &DepthPredictorNode::odometry_callback, this);
-    nh_.subscribe(feat_velocity_topic, 1, &DepthPredictorNode::feat_callback, this);
+    imu_sub_ = nh_.subscribe(imu_topic, 1, &DepthPredictorNode::imu_callback, this);
+    state_sub_ = nh_.subscribe(odm_topic, 1, &DepthPredictorNode::odometry_callback, this);
+    feat_sub_ = nh_.subscribe(feat_velocity_topic, 1, &DepthPredictorNode::feat_callback, this);
+
+    server_ = nh_.advertiseService("save_map", &DepthPredictorNode::save_map_func, this);
 
     // TODO: Publish feature depths?
 
@@ -68,6 +68,21 @@ void DepthPredictorNode::imu_callback(const sensor_msgs::ImuConstPtr imu_data) {
     num_omega_measurements++;
 }
 
+bool DepthPredictorNode::save_map_func(ttc_object_avoidance::SaveMap::Request &req, ttc_object_avoidance::SaveMap::Response &res) {
+    std::string filename = req.filename;
+    if (filename == "") {
+        std::ostringstream oss;
+        auto t = std::time(NULL);
+        auto tm = *std::localtime(&t);
+        oss << "/home/james/Documents/AirSim/supercomputer_recording/map" << std::put_time(&tm, "%m-%d_%H:%M:%S") << ".bt";
+        filename = oss.str();
+    }
+    map_->saveMap(filename);
+    
+    res.response = "Success";
+    return true;
+}
+
 Eigen::Vector3d DepthPredictorNode::getAvgOmega() {
     Eigen::Vector3d avg = omega_total / num_omega_measurements;
     omega_total = Eigen::Vector3d({{0, 0, 0}});
@@ -89,7 +104,7 @@ Eigen::Vector3d DepthPredictorNode::getAvgVelocity() {
 int main(int argc, char **argv) 
 {
     ros::init(argc, argv, "depth_predictor");
-    depth::DepthPredictorNode depth_tracker();
+    depth::DepthPredictorNode* depth_tracker = new depth::DepthPredictorNode();
 
     ros::spin();
 

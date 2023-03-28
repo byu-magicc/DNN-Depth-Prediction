@@ -35,10 +35,10 @@ class DisplacementTrackerNode:
         self.trackedIDs = set()
         self.trackedFeaturesPath = dict()
         ns = rospy.get_namespace()
-        self.fx = rospy.get_param(ns + "/fx")
-        self.fy = rospy.get_param(ns + "/fy")
-        self.cx = rospy.get_param(ns + "/cx")
-        self.cy = rospy.get_param(ns + "/cy") # TODO: maybe let Jake's stuff handle the calibration with the actual camera.
+        self.fx = rospy.get_param(ns + "projection_parameters/fx", self.fx)
+        self.fy = rospy.get_param(ns + "projection_parameters/fy", self.fy)
+        self.cx = rospy.get_param(ns + "projection_parameters/cx", self.cx)
+        self.cy = rospy.get_param(ns + "projection_parameters/cy", self.cy) # TODO: maybe let Jake's stuff handle the calibration with the actual camera.
         camera_intrinsics = np.array([[self.fx, 0, self.cx],
                                 [0, self.fy, self.cy],
                                 [0, 0, 1]])
@@ -81,8 +81,8 @@ class DisplacementTrackerNode:
 
         # run through the features and calculate displacements. Only include a feature in the result if it has a displacement
         features = []
-        currentTimeS = featsMsg.header.stamp.secs
-        currentTimeNs = featsMsg.header.stamp.nsecs
+        currentTimeS = feats.header.stamp.secs
+        currentTimeNs = feats.header.stamp.nsecs
 
         for featID in self.trackedFeaturesPath:
             path = self.trackedFeaturesPath[featID]

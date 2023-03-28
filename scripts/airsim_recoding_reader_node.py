@@ -8,8 +8,9 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
-from ttc_object_avoidance.msg import TrackedFeatsWDis
+from ttc_object_avoidance.srv import SaveMap
 import time
+from datetime import datetime
 
 class AirSimRecordingReaderNode:
     image_pub = None
@@ -108,6 +109,7 @@ class AirSimRecordingReaderNode:
             self.delay = (total_del - (time_stop - time_start))
         else:
             self.delay = None
+            rospy.ServiceProxy("save_map", SaveMap)("")
         
     
     # Function to summarize the features and their velocities and add them to the file

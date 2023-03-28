@@ -6,9 +6,9 @@
 
     <node name="displacement_tracker" pkg="ttc_object_avoidance" type="displacement_tracker_node.py" output="screen"/>
 
-    <node name="airsim_recording_reader" pkg="ttc_object_avoidance" type="airsim_recoding_reader_node.py" output="screen"/>
-
     <node name="depth_predictor" pkg="ttc_object_avoidance" type="depth_predictor" output="screen"/>
+
+    <node name="airsim_recording_reader" pkg="ttc_object_avoidance" type="airsim_recoding_reader_node.py" output="screen"/>
 
     <!-- <node name="area_tracker" pkg="ttc_object_avoidance" type="area_tracker_node.py" output="screen"/> -->
 

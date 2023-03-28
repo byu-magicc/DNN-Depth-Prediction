@@ -49,6 +49,12 @@ add_message_files(
   FeatAndDepth.msg
 )
 
+add_service_files(
+  DIRECTORY msg
+  FILES
+  SaveMap.srv
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs
