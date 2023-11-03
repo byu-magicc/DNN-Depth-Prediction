@@ -142,15 +142,15 @@ for line in data_reader:
     depth = depth if depth <= 100 else 100
     actual_depth.append(depth)
 #%%
-a = plt.axes(aspect='equal')
-plt.scatter(predicted_depth, actual_depth, 0.1)
-plt.xlabel('True Values [m]')
-plt.ylabel('Predictions [m]')
-lims = [-100, 100]
-plt.xlim(lims)
-plt.ylim(lims)
-error = 5
-_ = plt.plot(lims, lims, "k")
+# a = plt.axes(aspect='equal')
+# plt.scatter(predicted_depth, actual_depth, 0.1)
+# plt.xlabel('True Values [m]')
+# plt.ylabel('Predictions [m]')
+# lims = [-100, 100]
+# plt.xlim(lims)
+# plt.ylim(lims)
+# error = 5
+# _ = plt.plot(lims, lims, "k")
 # _ = plt.plot(lims, [lims[0] + error, lims[1] + error], "b")
 # _ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
 #%%
@@ -161,6 +161,7 @@ print("The average relative error is " + str(avg_relative_error*100) + "%")
 # %%
 bins = bin_for_heatmap(actual_depth, predicted_depth)
 ax = sns.heatmap(bins+0.1, norm=LogNorm())
+ax.set(title="Heatmap of Traditional Depth Prediction", xlabel="True Depth (m)", ylabel="Predicted Depth (m)")
 ax.invert_yaxis()
 plt.show()
 
