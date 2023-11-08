@@ -10,6 +10,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+# Essentially the same as train_neural_net_all_data.py except "naive"
+# features are used.
+
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
 # feature_data_ds = tf.data.experimental.make_csv_dataset(

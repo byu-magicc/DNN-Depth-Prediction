@@ -7,6 +7,10 @@ from bin_for_heatmap import *
 import seaborn as sns
 from matplotlib.colors import LogNorm
 
+# This file takes the data from parse_airsim_recording_for_feat_testing.py
+# and predicts the depth using traditional equations. It then creates
+# a heatmap for the predicted vs true depth.
+
 def qaut_to_rotation(Q):
     """
     Covert a quaternion into a full three-dimensional rotation matrix.

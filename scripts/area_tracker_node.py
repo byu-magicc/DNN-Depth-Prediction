@@ -10,6 +10,14 @@ from sensor_msgs.msg import Image
 from scipy.spatial import Delaunay
 from cv_bridge import CvBridge, CvBridgeError
 
+# This is a ROS node designed to take images and track features on
+# them. It takes these features and groups them together into non-
+# overlapping triangles. It then tracks the area of these triangles
+# and calculates a TTC using the change in area. This idea was
+# eventually scrapped because the loss of feature tracking on a 
+# feature breaks the area calculation on any triangle it was a part
+# of.
+
 class AreaTrackerNode:
     triangles_found = False
     trackedIDs = None

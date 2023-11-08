@@ -7,6 +7,11 @@ from collections import deque
 from ttc_object_avoidance.msg import TrackedFeats, TrackedFeatsWDis, FeatAndDisplacement
 from sensor_msgs.msg import Image
 
+# This is a ROS node that takes the features tracked by the tracker 
+# and converts their pixel locations into calibrated pixel coordinates. 
+# It then calculates the velocity of these calibrated features and 
+# publishes them.
+
 class DisplacementTrackerNode:
     feature_disp_publisher = None
 

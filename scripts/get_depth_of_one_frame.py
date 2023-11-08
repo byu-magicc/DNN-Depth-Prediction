@@ -18,6 +18,12 @@ from bin_for_heatmap import *
 import seaborn as sns
 from matplotlib.colors import LogNorm
 
+# This file takes a single frame from the AirSim recording (the line 
+# given by target_line_number + 2, so if you want it to take line 
+# 352, set target_line_number=350) and calculates the depth given 
+# the features and velocities and the motion from that file line. 
+# It then produces a plot of the actual depth and the predicted depth
+
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
 
@@ -142,18 +148,6 @@ prediction_rows[:,9] = float(line["Wx"])
 prediction_rows[:,10] = float(line["Wy"])
 prediction_rows[:,11] = float(line["Wz"])
 
-
-
-# line["Q_X"] = float(line["Q_X"])
-# line["Q_Y"] = float(line["Q_Y"])
-# line["Q_Z"] = float(line["Q_Z"])
-# line["Velx"] = float(line["Velx"])
-# line["Vely"] = float(line["Vely"])
-# line["Velz"] = float(line["Velz"])
-# line["Wx"] = float(line["Wx"])
-# line["Wy"] = float(line["Wy"])
-# line["Wz"] = float(line["Wz"])
-# k = 0
 for i in range(0, pixels.shape[0], 2): #the depth images are 320x240 while the images are 640x480
     closest_feats = []
     for j in range(0, pixels.shape[1], 2):
@@ -175,28 +169,6 @@ for i in range(0, pixels.shape[0], 2): #the depth images are 320x240 while the i
             prediction_rows[row, co+4*k+1] = feat["pos_y"]
             prediction_rows[row, co+4*k+2] = feat["vel_x"]
             prediction_rows[row, co+4*k+3] = feat["vel_y"]
-
-
-# directory = "/home/james/Documents/AirSim/supercomputer_recording/"
-# normalizer = tf.keras.layers.Normalization()
-# normalizer.adapt(np.array(prediction_rows))
-
-# def build_and_compile_model(norm):
-#     model = tf.keras.Sequential([
-#         norm,
-#         layers.Dense(64, activation='relu'),
-#         layers.Dense(64, activation='relu'),
-#         layers.Dense(64, activation='relu'),
-#         layers.Dense(64, activation='relu'),
-#         layers.Dense(1)
-#     ])
-
-#     model.compile(loss='mean_absolute_error',
-#                     optimizer=tf.keras.optimizers.Adam(0.001))
-#     return model
-
-# dnn_model = build_and_compile_model(normalizer)
-# dnn_model.load_weights("/home/james/catkin_ws/src/ttc-object-avoidance/scripts/training_calib_soph_f/cp_0029.ckpt")
 
 #%%
 prediction_st = time.process_time()

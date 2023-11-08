@@ -12,6 +12,11 @@ from ttc_object_avoidance.srv import SaveMap
 import time
 from datetime import datetime
 
+# This is a ROS node designed to take information from the AirSim recording
+# and publish it to the ROS network for use in feature tracking. It
+# also records the feature positions and velocities and writes them
+# to a unique file for every frame.
+
 class AirSimRecordingReaderNode:
     image_pub = None
     record_lines = []

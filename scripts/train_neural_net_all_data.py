@@ -13,6 +13,13 @@ from bin_for_heatmap import *
 import seaborn as sns
 from matplotlib.colors import LogNorm
 
+# This file is what actually trains the DNN. First, the model is 
+# setup with tensorflow. All of the training data produced by
+# parse_airsim_recording.py is then read in and divided into a training
+# and a test dataset. The model is trained on the training dataset.
+# A heatmap of predicted vs true depth of the test dataset is then 
+# produced.
+
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
 # feature_data_ds = tf.data.experimental.make_csv_dataset(

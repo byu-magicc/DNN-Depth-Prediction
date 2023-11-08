@@ -6,6 +6,12 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 import pprint
 
+# This file is a ROS node designed to capture data from AirSim, specifically the 
+# linear and angular velocity, and the camera and depth images. This ended
+# up not working because we had another Python script running the waypoint path
+# and you can only remote connect with one script at a time. We scrapped this
+# in favor of AirSim's built-in recording methods.
+
 class AirsimDataCaptureNode:
     image_pub = None
     client = None

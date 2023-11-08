@@ -1,3 +1,5 @@
+# Taken from https://johnlekberg.com/blog/2020-04-17-kd-tree.html
+
 import collections
 
 BT = collections.namedtuple("BT", ["value", "left", "right"])

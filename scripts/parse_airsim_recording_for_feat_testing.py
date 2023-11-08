@@ -9,6 +9,10 @@ from kd_tree_class import KD_Tree
 import time
 start_time = time.time()
 
+# This file is essentially the same as parse_airsim_recording.py 
+# except that it only takes the depth corresponding to the feature 
+# itself.
+
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
 

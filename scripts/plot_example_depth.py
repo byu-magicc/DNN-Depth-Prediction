@@ -4,6 +4,9 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 
+# This file creates a plot of the depth image given in the 
+# "depth_filename" variable
+
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
 

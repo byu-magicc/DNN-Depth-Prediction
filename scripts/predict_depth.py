@@ -7,6 +7,10 @@ from bin_for_heatmap import *
 import seaborn as sns
 from matplotlib.colors import LogNorm
 
+# Essentially the same as predict_depth_rotation.py, except this file
+# doesn't compensate for the motion of features due to camera rotation
+# so it doesn't perform as well in that case.
+
 def qaut_to_rotation(Q):
     """
     Covert a quaternion into a full three-dimensional rotation matrix.

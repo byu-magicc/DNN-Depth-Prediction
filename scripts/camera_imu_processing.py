@@ -11,6 +11,12 @@ import cv2 # OpenCV library
 import numpy as np
 import csv
 
+# This file is a ROS node that uses the KLT feature tracker to track
+# features in an image found with goodfeaturestotrack. It is naive
+# because it doesn't check if the features are tracked for a number
+# of frames before publishing. The longer a feature can be tracked, 
+# the higher its quality for use in depth prediction.
+
 class NaiveFeatureTracker:
     record_lines = []
     line_num = 0

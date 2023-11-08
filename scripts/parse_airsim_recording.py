@@ -6,6 +6,14 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from kd_tree_class import KD_Tree
 
+# This file goes through each frame of the AirSim recording (given by
+# "directory") and reads in the corresponding feature position and 
+# velocity file. It then takes each point in a downscaled version of
+# the image and finds the depth. It then paires this info with the 
+# rotational and translational rates, the orientation, and the 
+# position and velocity of the four nearest features and writes it
+# all to a file. This can then be used to train the DNN.
+
 def read_pfm(filename):
     with Path(filename).open('rb') as pfm_file:
 

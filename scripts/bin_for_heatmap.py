@@ -1,6 +1,9 @@
 import numpy as np
 import math
 
+# This file adds the bin_for_heatmap function that divides up the
+# plot area into bins for use in a heatmap.
+
 def bin_for_heatmap(predicted, actual, lims=[100,100], num_cells=[100,100]):
     bins = np.zeros(num_cells)
     p_axis_factor = (lims[0]+0.0)/num_cells[0]

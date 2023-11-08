@@ -1,6 +1,9 @@
 import csv
 import random
 
+# This file divides up the data produced by parse_airsim_recording.py
+# into more managable chunks for training
+
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 file_to_write = directory + "calib_nn_data_part4.csv"
 

@@ -6,6 +6,10 @@ from keras import layers
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Old version of the training. The training was done on sliced 
+# versions of the dataset. The plot at the end was also not a heatmap
+# making it very hard to distinguish points.
+
 directory = "/home/james/Documents/AirSim/supercomputer_recording/"
 
 # feature_data_ds = tf.data.experimental.make_csv_dataset(
