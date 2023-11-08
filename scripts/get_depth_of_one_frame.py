@@ -83,6 +83,7 @@ def build_and_compile_model(norm):
     return model
 
 dnn_model = build_and_compile_model(normalizer)
+# loads the weights from a checkpoint made during the training progress
 dnn_model.load_weights("/home/james/catkin_ws/src/ttc-object-avoidance/scripts/training_calib_soph_f/cp_0029.ckpt")
 
 record_lines = []

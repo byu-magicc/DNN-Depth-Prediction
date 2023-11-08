@@ -72,6 +72,9 @@ def build_and_compile_model(norm):
 
 dnn_model = build_and_compile_model(normalizer)
 #%%
+
+# while the model is training, it saves checkpoints so if the 
+# training fails the progress can be recovered.
 checkpoint_path = "training_calib_soph_f/cp_{epoch:04d}.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback=tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
