@@ -102,25 +102,25 @@ plot_loss(history)
 # %%
 test_predictions = dnn_model.predict(test_features).flatten()
 
-a = plt.axes(aspect='equal')
-plt.scatter(test_labels, test_predictions, 0.1)
-plt.xlabel('True Values [m]')
-plt.ylabel('Predictions [m]')
+# a = plt.axes(aspect='equal')
+# plt.scatter(test_labels, test_predictions, 0.1)
+# plt.xlabel('True Values [m]')
+# plt.ylabel('Predictions [m]')
 lims = [0, 100]
-plt.xlim(lims)
-plt.ylim(lims)
-error = 5
-_ = plt.plot(lims, lims, "k")
-_ = plt.plot(lims, [error, 100 + error], "b")
-_ = plt.plot(lims, [-error, 100-error], "r")
+# plt.xlim(lims)
+# plt.ylim(lims)
+# error = 5
+# _ = plt.plot(lims, lims, "k")
+# _ = plt.plot(lims, [error, 100 + error], "b")
+# _ = plt.plot(lims, [-error, 100-error], "r")
 # %%
 errors = test_labels - test_predictions
-count = 0
-for e in errors:
-  if np.abs(e) < error:
-    count += 1
-num_test_features = len(test_features)
-print(str(count) + "/" + str(num_test_features) + " (" + str((count+0.0)/num_test_features*100) + "%) are within " + str(error) + " of their true value")
+# count = 0
+# for e in errors:
+#   if np.abs(e) < error:
+#     count += 1
+# num_test_features = len(test_features)
+# print(str(count) + "/" + str(num_test_features) + " (" + str((count+0.0)/num_test_features*100) + "%) are within " + str(error) + " of their true value")
 # %%
 relative_errors = np.abs(errors/test_labels)
 avg_rel_error = np.sum(relative_errors)/len(relative_errors)
@@ -128,7 +128,7 @@ print("The average relative error is " + str(avg_rel_error*100) + "%")
 
 #%%
 bins = bin_for_heatmap(test_labels, test_predictions)
-ax = sns.heatmap(bins+0.1, norm=LogNorm())
+ax = sns.heatmap(bins+0.1, norm=LogNorm(), cbar_kws={'label': "# of occurances"})
 ax.set(title="Heatmap of DNN Depth Prediction",xlabel="True Depth (m)",ylabel="Predicted Depth (m)")
 ax.invert_yaxis()
 plt.show()

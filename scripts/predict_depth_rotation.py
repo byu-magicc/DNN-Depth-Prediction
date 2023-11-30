@@ -134,7 +134,13 @@ for line in data_reader:
     pz_x = (pyc*wz - pzc*wy - velx-pxc*featx*wy + pyc*featx*wx+velz*featx)/(featvx - featy*wz + (1+featx**2)*wy - featx*featy*wx)
     pz_y =(-pxc*wz + pzc*wx - vely-pxc*featy*wy + pyc*featy*wx+velz*featy)/(featvy + featx*wz - (1+featy**2)*wx + featx*featy*wy)
 
-    pz = (pz_x + pz_y)/2
+    if pz_y < 0:
+        pz=pz_x
+    elif pz_x < 0:
+        pz=pz_y
+    else:
+        pz=min(pz_x, pz_y)
+    # pz = pz_y#(pz_x + pz_y)/2
     depth = pz*np.sqrt(1+featx**2+featy**2)
     # depth = depth_sum#/4
 
@@ -149,14 +155,9 @@ for line in data_reader:
     actual_depth.append(depth)
 #%%
 a = plt.axes(aspect='equal')
-plt.scatter(predicted_depth, actual_depth, 0.1)
-plt.xlabel('True Values [m]')
-plt.ylabel('Predictions [m]')
-lims = [0, 100]
-plt.xlim(lims)
-plt.ylim(lims)
+# plt.scatter(predicted_depth, actual_depth, 0.1)
 # error = 5
-_ = plt.plot(lims, lims, "k")
+# _ = plt.plot(lims, lims, "k")
 # _ = plt.plot(lims, [lims[0]+error, lims[1] + error], "b")
 # _ = plt.plot(lims, [lims[0]-error, lims[1]-error], "r")
 #%%
@@ -165,8 +166,14 @@ avg_rel_error = np.sum(relative_errors)/len(predicted_depth)
 print("The average relative error is " + str(avg_rel_error*100) + "%")
 # %%
 bins = bin_for_heatmap(actual_depth, predicted_depth)
-ax = sns.heatmap(bins+0.1, norm=LogNorm())
+ax = sns.heatmap(bins+0.1, norm=LogNorm(), cbar_kws={'label': "# of occurances"})
 ax.invert_yaxis()
+plt.title("Heatmap of Equation Depth Prediction")
+plt.xlabel('True Values [m]')
+plt.ylabel('Predictions [m]')
+lims = [0, 100]
+plt.xlim(lims)
+plt.ylim(lims)
 plt.show()
 
 # %%

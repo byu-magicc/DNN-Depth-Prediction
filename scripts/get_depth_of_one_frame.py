@@ -192,3 +192,10 @@ plt.yticks([],[])
 plt.xticks([],[])
 plt.show()
 # %%
+
+downsampled_pixels= pixels[::2,::2]
+difference = predicted_depths - downsampled_pixels
+sns.heatmap(difference, cmap=sns.color_palette("Spectral_r", as_cmap=True))
+plt.yticks([],[])
+plt.xticks([],[])
+plt.show()
